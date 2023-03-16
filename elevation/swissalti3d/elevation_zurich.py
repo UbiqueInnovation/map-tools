@@ -1,11 +1,11 @@
-from .swissalti3d_source import SwissAlti3dSource
+from .swissalti3d import SwissAlti3d
 
 
-class ZurichSource(SwissAlti3dSource):
+class ElevationZurich(SwissAlti3d):
 
     @property
     def tile_list(self) -> str:
-        return 'zurich_tiles'
+        return 'elevation_zurich_tiles'
 
     @property
     def local_path(self) -> str:

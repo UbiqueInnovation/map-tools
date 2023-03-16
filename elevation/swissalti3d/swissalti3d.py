@@ -1,10 +1,10 @@
 from abc import abstractmethod
 from typing import Iterable
 
-from ..source import Source
+from ..elevation_layer import ElevationLayer
 
 
-class SwissAlti3dSource(Source):
+class SwissAlti3d(ElevationLayer):
 
     @property
     @abstractmethod
@@ -12,5 +12,5 @@ class SwissAlti3dSource(Source):
         pass
 
     def get_urls(self) -> Iterable[str]:
-        with open(f"sources/swissalti3d/{self.tile_list}") as tile_list:
+        with open(f"elevation/swissalti3d/{self.tile_list}") as tile_list:
             return [t.strip() for t in tile_list.readlines()]

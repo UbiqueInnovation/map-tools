@@ -4,15 +4,15 @@ Collection of tools, for various map related issues.
 
 ## Digital Elevation Map
 
-This repository includes scripts for downloading and processing digital elevation maps. 
+This repository includes scripts for downloading and processing digital elevation maps.
 
 ```python
-from sources import ZurichSource, SwitzerlandSource, Glo90Source
+from elevation import ElevationZurich, ElevationSwitzerland, Glo90
 
 # Downloading the tiles
-ZurichSource().download_tiles()
-SwitzerlandSource().download_tiles()
-Glo90Source().download_tiles()
+ElevationZurich().download_tiles()
+ElevationSwitzerland().download_tiles()
+Glo90().download_tiles()
 ```
 
 ### SwissAlti3D

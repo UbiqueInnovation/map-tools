@@ -1,9 +1,9 @@
 from typing import Iterable
 
-from ..source import Source
+from ..elevation_layer import ElevationLayer
 
 
-class Glo90Source(Source):
+class Glo90(ElevationLayer):
 
     @property
     def local_path(self) -> str:
@@ -11,7 +11,7 @@ class Glo90Source(Source):
 
     @staticmethod
     def tile_names() -> list[str]:
-        with open('sources/copernicus/glo_90_tiles') as tile_list:
+        with open('elevation/copernicus/glo_90_tiles') as tile_list:
             return [t.strip() for t in tile_list.readlines()]
 
     @staticmethod
