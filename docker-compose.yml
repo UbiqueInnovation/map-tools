@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+
+  map-tools:
+    container_name: map-tools
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: map-tools
+    command: python main.py
+    volumes:
+      - .:/opt/app
+
