@@ -18,3 +18,4 @@ jobs:
           args: >
             -Dsonar.organization=ubiqueinnovation
             -Dsonar.projectKey=UbiqueInnovation_map-tools
+            -Dsonar.python.version=3.10
