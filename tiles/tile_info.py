@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Iterable
 
 max_value = 20_037_508.3427892
 max_coordinate = max_value, max_value
@@ -12,11 +13,15 @@ coordinate_system_width = 2 * max_value
 coordinate_system_height = coordinate_system_width
 
 
-@dataclass(frozen=True, kw_only=True, unsafe_hash=True)
+@dataclass(frozen=True, kw_only=True, unsafe_hash=True, order=True)
 class TileInfo:
+    zoom: int
     x: int
     y: int
-    zoom: int
+
+    @property
+    def path(self) -> str:
+        return f'{self.zoom}/{self.x}/{self.y}'
 
     @property
     def size(self) -> tuple[float, float]:
@@ -65,3 +70,13 @@ class TileInfo:
             TileInfo(zoom=zoom, x=x0 + 1, y=y0),
             TileInfo(zoom=zoom, x=x0 + 1, y=y0 + 1)
         }
+
+    def descendants(self, max_zoom: int) -> Iterable[TileInfo]:
+        if self.zoom > max_zoom:
+            return []
+
+        yield self
+
+        for child in self.children:
+            for descendant in child.descendants(max_zoom):
+                yield descendant

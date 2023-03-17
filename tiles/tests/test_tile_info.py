@@ -39,3 +39,11 @@ class TestTileInfo(TestCase):
             TileInfo(zoom=7, x=66, y=45),
             TileInfo(zoom=7, x=67, y=45),
         })
+
+    def test_descendants(self) -> None:
+        root = TileInfo(x=0, y=0, zoom=0)
+        self.assertSetEqual(set(root.descendants(max_zoom=0)), {root})
+        self.assertSetEqual(set(root.descendants(max_zoom=1)), {root}.union(root.children))
+
+    def test_path(self) -> None:
+        self.assertEqual(TileInfo(zoom=3, x=2, y=1).path, "3/2/1")

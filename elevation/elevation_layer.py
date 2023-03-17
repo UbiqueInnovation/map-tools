@@ -1,14 +1,17 @@
 import logging
 import os
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
 from typing import Iterable
 
 import requests
-from alive_progress import alive_bar
+from alive_progress import alive_bar, alive_it
 from osgeo import gdal
 from osgeo_utils.gdal_merge import gdal_merge
+
+from tiles import TileInfo
 
 
 class ElevationLayer(ABC):
@@ -39,9 +42,23 @@ class ElevationLayer(ABC):
         return f'{self.data_path}/source'
 
     @property
+    def tiles_path(self) -> str:
+        return f'{self.data_path}/tiles'
+
+    @property
+    def hillshade_tiles_path(self) -> str:
+        return f'{self.data_path}/hillshade'
+
+    @property
     def source_files(self) -> list[str]:
         path = self.source_files_path
         return [f'{path}/{file}' for file in os.listdir(path) if file.endswith(".tif")]
+
+    def tile_path(self, tile_info: TileInfo) -> str:
+        return f'{self.tiles_path}/{tile_info.path}.tif'
+
+    def hillshade_tile_path(self, tile_info: TileInfo) -> str:
+        return f'{self.hillshade_tiles_path}/{tile_info.path}.png'
 
     def __str__(self) -> str:
         return self.__class__.__name__
@@ -92,3 +109,42 @@ class ElevationLayer(ABC):
         if not os.path.exists(self.webmercator_file_path):
             logging.info(f"Warping tile {self.merged_file_path} to Webmercator")
             gdal.Warp(self.webmercator_file_path, self.merged_file_path, dstSRS='EPSG:3857')
+
+    def generate_tile(self, tile_info: TileInfo, resolution: int = 512) -> None:
+        target_path = self.tile_path(tile_info)
+        os.makedirs(os.path.dirname(target_path), exist_ok=True)
+        min_x, min_y = tile_info.min_coordinate
+        max_x, max_y = tile_info.max_coordinate
+        gdal.Warp(
+            destNameOrDestDS=target_path,
+            srcDSOrSrcDSTab=self.merged_file_path,
+            dstSRS='EPSG:3857',
+            width=resolution,
+            height=resolution,
+            outputBounds=(min_x, min_y, max_x, max_y)
+        )
+
+    def generate_hillshade_tile(self, tile_info: TileInfo):
+        target_path = self.hillshade_tile_path(tile_info)
+        os.makedirs(os.path.dirname(target_path), exist_ok=True)
+
+        gdal.DEMProcessing(
+            destName=target_path,
+            srcDS=self.tile_path(tile_info),
+            processing='hillshade',
+            multiDirectional=True
+        )
+
+    def generate(self, tile_infos: Iterable[TileInfo]) -> None:
+        self.download_tiles()
+        self.merge_tiles()
+
+        tile_infos_by_level = defaultdict(list)
+        for tile_info in tile_infos:
+            tile_infos_by_level[tile_info.zoom].append(tile_info)
+
+        for level, tile_infos_of_level in tile_infos_by_level.items():
+            logging.info(f"Generating tiles for level {level}")
+            for tile_info in alive_it(tile_infos_of_level):
+                self.generate_tile(tile_info)
+                self.generate_hillshade_tile(tile_info)
