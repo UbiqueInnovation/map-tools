@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.10' ]
+        python_version: [ '3.10' ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -36,4 +36,4 @@ jobs:
             -Dsonar.organization=ubiqueinnovation
             -Dsonar.projectKey=UbiqueInnovation_map-tools
             -Dsonar.python.version=${{ matrix.python_version }}
-            -Dsonar.python.coverage.reportsPath=/github/workspace/coverage.xml
+            -Dsonar.python.coverage.reportsPath=coverage.xml
