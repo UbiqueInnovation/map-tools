@@ -16,6 +16,9 @@ from tiles import TileInfo
 
 class ElevationLayer(ABC):
 
+    def __init__(self) -> None:
+        self.thread_pool = ThreadPool(cpu_count())
+
     @property
     @abstractmethod
     def local_path(self) -> str:
@@ -86,14 +89,12 @@ class ElevationLayer(ABC):
 
         urls = list(self.get_urls())
 
-        thread_pool = ThreadPool(cpu_count())
-
         total_count = len(urls)
         downloaded_count = 0
 
         logging.info(f"Getting tiles from {self}")
         with alive_bar(total_count) as progress_bar:
-            for downloaded in thread_pool.imap_unordered(self.fetch_tile, urls):
+            for downloaded in self.thread_pool.imap_unordered(self.fetch_tile, urls):
                 progress_bar()
                 if downloaded:
                     downloaded_count += 1
@@ -135,6 +136,10 @@ class ElevationLayer(ABC):
             multiDirectional=True
         )
 
+    def generate_tile_and_hillshade(self, tile_info: TileInfo) -> None:
+        self.generate_tile(tile_info)
+        self.generate_hillshade_tile(tile_info)
+
     def generate(self, tile_infos: Iterable[TileInfo]) -> None:
         self.download_tiles()
         self.merge_tiles()
@@ -145,6 +150,5 @@ class ElevationLayer(ABC):
 
         for level, tile_infos_of_level in tile_infos_by_level.items():
             logging.info(f"Generating tiles for level {level}")
-            for tile_info in alive_it(tile_infos_of_level):
-                self.generate_tile(tile_info)
-                self.generate_hillshade_tile(tile_info)
+            list(alive_it(self.thread_pool.imap_unordered(self.generate_tile_and_hillshade, tile_infos_of_level),
+                          total=len(tile_infos_of_level)))
