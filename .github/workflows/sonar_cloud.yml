@@ -23,9 +23,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install gdal-bin libgdal-dev
           pip install -r requirements.txt
-      - name: Test with pytest
+      - name: Run Tests
         run: |
-          pytest --cov=./ --cov-report=xml --doctest-modules
+          coverage run -m unittest discover && coverage xml
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
