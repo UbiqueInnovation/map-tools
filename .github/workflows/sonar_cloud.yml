@@ -1,18 +1,17 @@
 name: Sonar Cloud
 on: [push, pull_request]
+env:
+  python_version: '3.10'
 
 jobs:
   sonarcloud:
     name: Sonar Cloud Analysis
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python_version: [ '3.10' ]
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up Python ${{ matrix.python_version }}
+      - name: Set up Python ${{ env.python_version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python_version }}
@@ -35,5 +34,5 @@ jobs:
           args: >
             -Dsonar.organization=ubiqueinnovation
             -Dsonar.projectKey=UbiqueInnovation_map-tools
-            -Dsonar.python.version=${{ matrix.python_version }}
+            -Dsonar.python.version=${{ env.python_version }}
             -Dsonar.python.coverage.reportPaths=coverage.xml
