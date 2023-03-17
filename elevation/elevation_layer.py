@@ -7,6 +7,7 @@ from typing import Iterable
 
 import requests
 from alive_progress import alive_bar
+from osgeo import gdal
 from osgeo_utils.gdal_merge import gdal_merge
 
 
@@ -28,6 +29,10 @@ class ElevationLayer(ABC):
     @property
     def merged_file_path(self) -> str:
         return f'{self.data_path}/merged.tif'
+
+    @property
+    def webmercator_file_path(self) -> str:
+        return f'{self.data_path}/webmercator.tif'
 
     @property
     def source_files_path(self) -> str:
@@ -82,3 +87,8 @@ class ElevationLayer(ABC):
         if not os.path.exists(self.merged_file_path):
             logging.info(f"Merging tiles for {self}")
             gdal_merge(['', '-o', self.merged_file_path, '-a_nodata', '-999'] + self.source_files)
+
+    def warp_to_webmercator(self) -> None:
+        if not os.path.exists(self.webmercator_file_path):
+            logging.info(f"Warping tile {self.merged_file_path} to Webmercator")
+            gdal.Warp(self.webmercator_file_path, self.merged_file_path, dstSRS='EPSG:3857')
