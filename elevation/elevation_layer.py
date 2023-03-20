@@ -7,6 +7,7 @@ from multiprocessing.pool import ThreadPool
 from typing import Iterable
 
 import requests
+from PIL import Image
 from alive_progress import alive_bar, alive_it
 from mypy_boto3_s3.service_resource import Bucket
 from osgeo import gdal
@@ -138,9 +139,14 @@ class ElevationLayer(ABC):
             multiDirectional=True
         )
 
+    @staticmethod
+    def image_to_rgb(path: str) -> None:
+        Image.open(path).convert('RGBA').save(path)
+
     def generate_tile_and_hillshade(self, tile_info: TileInfo) -> None:
         self.generate_tile(tile_info)
         self.generate_hillshade_tile(tile_info)
+        self.image_to_rgb(self.hillshade_tile_path(tile_info))
         if self.output_bucket:
             self.output_bucket.upload_file(self.hillshade_tile_path(tile_info),
                                            f'tiles/v1/hillshade/{tile_info.path}.png')
