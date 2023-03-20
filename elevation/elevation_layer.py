@@ -8,6 +8,7 @@ from typing import Iterable
 
 import requests
 from alive_progress import alive_bar, alive_it
+from mypy_boto3_s3.service_resource import Bucket
 from osgeo import gdal
 from osgeo_utils.gdal_merge import gdal_merge
 
@@ -16,8 +17,9 @@ from tiles import TileInfo
 
 class ElevationLayer(ABC):
 
-    def __init__(self) -> None:
+    def __init__(self, output_bucket: Bucket = None) -> None:
         self.thread_pool = ThreadPool(cpu_count())
+        self.output_bucket = output_bucket
 
     @property
     @abstractmethod
@@ -139,6 +141,9 @@ class ElevationLayer(ABC):
     def generate_tile_and_hillshade(self, tile_info: TileInfo) -> None:
         self.generate_tile(tile_info)
         self.generate_hillshade_tile(tile_info)
+        if self.output_bucket:
+            self.output_bucket.upload_file(self.hillshade_tile_path(tile_info),
+                                           f'tiles/v1/hillshade/{tile_info.path}.png')
 
     def generate(self, tile_infos: Iterable[TileInfo]) -> None:
         self.download_tiles()

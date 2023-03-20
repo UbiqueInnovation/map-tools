@@ -5,3 +5,6 @@ rio-rgbify==0.4.0
 requests==2.28.2
 alive-progress==3.0.1
 coverage==7.2.2
+boto3==1.26.94
+boto3-stubs[s3]==1.26.94
+python-dotenv==1.0.0
