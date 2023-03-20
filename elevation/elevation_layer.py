@@ -10,6 +10,7 @@ import requests
 from PIL import Image
 from alive_progress import alive_bar, alive_it
 from osgeo import gdal
+from retry import retry
 
 from storage import TileOutput
 from tiles import TileInfo
@@ -64,6 +65,7 @@ class ElevationLayer(ABC):
     def __str__(self) -> str:
         return self.__class__.__name__
 
+    @retry(tries=5, delay=.1, backoff=2)
     def fetch_tile(self, tile_url: str) -> bool:
         file_name = tile_url.split("/")[-1]
         path = f'{self.source_files_path}/{file_name}'
