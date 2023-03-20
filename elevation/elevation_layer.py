@@ -113,6 +113,9 @@ class ElevationLayer(ABC):
 
     def cut_and_warp_to_tile(self, tile_info: TileInfo, resolution: int = 512) -> None:
         target_path = self.warped_tile_path(tile_info)
+        if os.path.exists(target_path):
+            return
+
         os.makedirs(os.path.dirname(target_path), exist_ok=True)
         min_x, min_y = tile_info.min_coordinate
         max_x, max_y = tile_info.max_coordinate
