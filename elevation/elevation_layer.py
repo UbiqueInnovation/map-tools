@@ -11,7 +11,6 @@ from PIL import Image
 from alive_progress import alive_bar, alive_it
 from mypy_boto3_s3.service_resource import Bucket
 from osgeo import gdal
-from osgeo_utils.gdal_merge import gdal_merge
 
 from tiles import TileInfo
 
@@ -36,20 +35,16 @@ class ElevationLayer(ABC):
         return f'data/{self.local_path}'
 
     @property
-    def merged_file_path(self) -> str:
-        return f'{self.data_path}/merged.tif'
-
-    @property
-    def webmercator_file_path(self) -> str:
-        return f'{self.data_path}/webmercator.tif'
+    def virtual_dataset_file_path(self) -> str:
+        return f'{self.data_path}/source.vrt'
 
     @property
     def source_files_path(self) -> str:
         return f'{self.data_path}/source'
 
     @property
-    def tiles_path(self) -> str:
-        return f'{self.data_path}/tiles'
+    def warped_tiles_path(self) -> str:
+        return f'{self.data_path}/warped'
 
     @property
     def hillshade_tiles_path(self) -> str:
@@ -60,8 +55,8 @@ class ElevationLayer(ABC):
         path = self.source_files_path
         return [f'{path}/{file}' for file in os.listdir(path) if file.endswith(".tif")]
 
-    def tile_path(self, tile_info: TileInfo) -> str:
-        return f'{self.tiles_path}/{tile_info.path}.tif'
+    def warped_tile_path(self, tile_info: TileInfo) -> str:
+        return f'{self.warped_tiles_path}/{tile_info.path}.tif'
 
     def hillshade_tile_path(self, tile_info: TileInfo) -> str:
         return f'{self.hillshade_tiles_path}/{tile_info.path}.png'
@@ -104,24 +99,26 @@ class ElevationLayer(ABC):
 
         logging.info(f"Downloaded {downloaded_count}, skipped {total_count - downloaded_count} tiles.")
 
-    def merge_tiles(self) -> None:
-        if not os.path.exists(self.merged_file_path):
-            logging.info(f"Merging tiles for {self}")
-            gdal_merge(['', '-o', self.merged_file_path, '-a_nodata', '-999'] + self.source_files)
+    def create_virtual_dataset(self) -> None:
+        if os.path.exists(self.virtual_dataset_file_path):
+            logging.info("Virtual data set already exists")
+            return
 
-    def warp_to_webmercator(self) -> None:
-        if not os.path.exists(self.webmercator_file_path):
-            logging.info(f"Warping tile {self.merged_file_path} to Webmercator")
-            gdal.Warp(self.webmercator_file_path, self.merged_file_path, dstSRS='EPSG:3857')
+        logging.info("Creating virtual data set")
+        gdal.BuildVRT(
+            destName=self.virtual_dataset_file_path,
+            srcDSOrSrcDSTab=self.source_files,
+            resolution='highest',
+            VRTNodata=-999)
 
-    def generate_tile(self, tile_info: TileInfo, resolution: int = 512) -> None:
-        target_path = self.tile_path(tile_info)
+    def cut_and_warp_to_tile(self, tile_info: TileInfo, resolution: int = 512) -> None:
+        target_path = self.warped_tile_path(tile_info)
         os.makedirs(os.path.dirname(target_path), exist_ok=True)
         min_x, min_y = tile_info.min_coordinate
         max_x, max_y = tile_info.max_coordinate
         gdal.Warp(
             destNameOrDestDS=target_path,
-            srcDSOrSrcDSTab=self.merged_file_path,
+            srcDSOrSrcDSTab=self.virtual_dataset_file_path,
             dstSRS='EPSG:3857',
             width=resolution,
             height=resolution,
@@ -134,17 +131,18 @@ class ElevationLayer(ABC):
 
         gdal.DEMProcessing(
             destName=target_path,
-            srcDS=self.tile_path(tile_info),
+            srcDS=self.warped_tile_path(tile_info),
             processing='hillshade',
-            multiDirectional=True
+            multiDirectional=True,
+            computeEdges=True
         )
 
     @staticmethod
     def image_to_rgb(path: str) -> None:
         Image.open(path).convert('RGBA').save(path)
 
-    def generate_tile_and_hillshade(self, tile_info: TileInfo) -> None:
-        self.generate_tile(tile_info)
+    def generate_tile(self, tile_info: TileInfo) -> None:
+        self.cut_and_warp_to_tile(tile_info)
         self.generate_hillshade_tile(tile_info)
         self.image_to_rgb(self.hillshade_tile_path(tile_info))
         if self.output_bucket:
@@ -153,7 +151,7 @@ class ElevationLayer(ABC):
 
     def generate(self, tile_infos: Iterable[TileInfo]) -> None:
         self.download_tiles()
-        self.merge_tiles()
+        self.create_virtual_dataset()
 
         tile_infos_by_level = defaultdict(list)
         for tile_info in tile_infos:
@@ -161,5 +159,5 @@ class ElevationLayer(ABC):
 
         for level, tile_infos_of_level in tile_infos_by_level.items():
             logging.info(f"Generating tiles for level {level}")
-            list(alive_it(self.thread_pool.imap_unordered(self.generate_tile_and_hillshade, tile_infos_of_level),
+            list(alive_it(self.thread_pool.imap_unordered(self.generate_tile, tile_infos_of_level),
                           total=len(tile_infos_of_level)))
