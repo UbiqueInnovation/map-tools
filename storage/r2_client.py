@@ -6,6 +6,7 @@ from mypy_boto3_s3.service_resource import Bucket
 
 
 class R2Client:
+
     def __init__(self) -> None:
         load_dotenv()  # take environment variables from .env.
         self.client = boto3.resource(

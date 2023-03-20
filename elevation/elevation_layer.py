@@ -9,17 +9,17 @@ from typing import Iterable
 import requests
 from PIL import Image
 from alive_progress import alive_bar, alive_it
-from mypy_boto3_s3.service_resource import Bucket
 from osgeo import gdal
 
+from storage import TileOutput
 from tiles import TileInfo
 
 
 class ElevationLayer(ABC):
 
-    def __init__(self, output_bucket: Bucket = None) -> None:
+    def __init__(self, output: TileOutput = None) -> None:
         self.thread_pool = ThreadPool(cpu_count())
-        self.output_bucket = output_bucket
+        self.output = output
 
     @property
     @abstractmethod
@@ -145,9 +145,8 @@ class ElevationLayer(ABC):
         self.cut_and_warp_to_tile(tile_info)
         self.generate_hillshade_tile(tile_info)
         self.image_to_rgb(self.hillshade_tile_path(tile_info))
-        if self.output_bucket:
-            self.output_bucket.upload_file(self.hillshade_tile_path(tile_info),
-                                           f'tiles/v1/hillshade/{tile_info.path}.png')
+        if self.output:
+            self.output.upload(self.hillshade_tile_path(tile_info), tile_info)
 
     def generate(self, tile_infos: Iterable[TileInfo]) -> None:
         self.download_tiles()

@@ -1,12 +1,11 @@
-from mypy_boto3_s3.service_resource import Bucket
-
+from storage import TileOutput
 from .swissalti3d import SwissAlti3d
 
 
 class ElevationSwitzerland(SwissAlti3d):
 
-    def __init__(self, high_res: bool = False, output_bucket: Bucket = None):
-        super().__init__(output_bucket)
+    def __init__(self, high_res: bool = False, output: TileOutput = None):
+        super().__init__(output)
         self.high_res = high_res
 
     @property
