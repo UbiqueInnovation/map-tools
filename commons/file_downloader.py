@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os.path
-from asyncio import Semaphore, TaskGroup
+from asyncio import Semaphore
 from typing import Iterable
 
 from alive_progress import alive_bar
@@ -53,9 +53,10 @@ class FileDownloader:
             self.progress_bar()
 
     async def download(self) -> None:
-        async with TaskGroup() as task_group:
-            for path in self.urls:
-                task_group.create_task(self.download_file(path))
+        await asyncio.gather(*[self.download_file(url) for url in self.urls])
+        # async with TaskGroup() as task_group:
+        #     for path in self.urls:
+        #         task_group.create_task()
 
     @staticmethod
     def download_all(urls: Iterable[str], path: str) -> None:
