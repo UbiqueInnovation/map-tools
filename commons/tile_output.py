@@ -1,5 +1,6 @@
+from mypy_boto3_s3.service_resource import Bucket
+
 from tiles import TileInfo
-from .r2_client import Bucket
 
 
 class TileOutput:

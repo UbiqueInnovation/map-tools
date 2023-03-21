@@ -1,4 +1,4 @@
-from storage import TileOutput
+from commons import TileOutput
 from .swissalti3d import SwissAlti3d
 
 

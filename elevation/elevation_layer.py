@@ -7,13 +7,13 @@ from multiprocessing.pool import ThreadPool
 from typing import Iterable
 
 from PIL import Image
-from alive_progress import alive_bar, alive_it
+from alive_progress import alive_it
 from osgeo import gdal
 from requests import Session
 from requests.adapters import HTTPAdapter
 from retry import retry
 
-from storage import TileOutput
+from commons import TileOutput, FileDownloader
 from tiles import TileInfo
 
 
@@ -25,6 +25,10 @@ class ElevationLayer(ABC):
         self.thread_pool = ThreadPool(self.num_threads)
         self.session = Session()
         self.session.mount('https://', HTTPAdapter(pool_connections=self.num_threads, pool_maxsize=self.num_threads))
+
+        # Set environment variables for GDAL
+        os.environ['GDAL_PAM_ENABLED'] = 'NO'
+        os.environ['GDAL_MAX_DATASET_POOL_SIZE'] = f'{self.num_threads}'
 
     @property
     @abstractmethod
@@ -90,20 +94,7 @@ class ElevationLayer(ABC):
 
     def download_tiles(self) -> None:
         os.makedirs(f'data/{self.local_path}/source', exist_ok=True)
-
-        urls = list(self.get_urls())
-
-        total_count = len(urls)
-        downloaded_count = 0
-
-        logging.info(f"Getting tiles from {self}")
-        with alive_bar(total_count) as progress_bar:
-            for downloaded in self.thread_pool.imap_unordered(self.fetch_tile, urls):
-                progress_bar()
-                if downloaded:
-                    downloaded_count += 1
-
-        logging.info(f"Downloaded {downloaded_count}, skipped {total_count - downloaded_count} tiles.")
+        FileDownloader.download_all(self.get_urls(), self.source_files_path)
 
     def create_virtual_dataset(self) -> None:
         if os.path.exists(self.virtual_dataset_file_path):
@@ -114,8 +105,7 @@ class ElevationLayer(ABC):
         gdal.BuildVRT(
             destName=self.virtual_dataset_file_path,
             srcDSOrSrcDSTab=self.source_files,
-            resolution='highest',
-            VRTNodata=-999)
+            options=gdal.BuildVRTOptions(resolution='highest', VRTNodata=0))
 
     def cut_and_warp_to_tile(self, tile_info: TileInfo, resolution: int = 512) -> None:
         target_path = self.warped_tile_path(tile_info)
@@ -128,10 +118,13 @@ class ElevationLayer(ABC):
         gdal.Warp(
             destNameOrDestDS=target_path,
             srcDSOrSrcDSTab=self.virtual_dataset_file_path,
-            dstSRS='EPSG:3857',
-            width=resolution,
-            height=resolution,
-            outputBounds=(min_x, min_y, max_x, max_y)
+            options=gdal.WarpOptions(
+                dstSRS='EPSG:3857',
+                width=resolution,
+                height=resolution,
+                outputBounds=(min_x, min_y, max_x, max_y),
+                multithread=True,
+            )
         )
 
     def generate_hillshade_tile(self, tile_info: TileInfo):
@@ -142,8 +135,7 @@ class ElevationLayer(ABC):
             destName=target_path,
             srcDS=self.warped_tile_path(tile_info),
             processing='hillshade',
-            multiDirectional=True,
-            computeEdges=True
+            options=gdal.DEMProcessingOptions(multiDirectional=True, computeEdges=True)
         )
 
     @staticmethod

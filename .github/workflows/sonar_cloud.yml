@@ -1,7 +1,7 @@
 name: Sonar Cloud
 on: [push, pull_request]
 env:
-  python_version: '3.10'
+  python_version: '3.11'
 
 jobs:
   sonarcloud:

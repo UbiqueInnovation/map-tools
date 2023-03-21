@@ -1,5 +1,4 @@
 import os
-from multiprocessing import cpu_count
 
 import boto3 as boto3
 from botocore.config import Config
@@ -11,6 +10,7 @@ class R2Client:
 
     def __init__(self) -> None:
         load_dotenv()  # take environment variables from .env.
+        import multiprocessing
         self.client = boto3.resource(
             service_name='s3',
             region_name='auto',
@@ -18,7 +18,7 @@ class R2Client:
             aws_access_key_id=os.environ["R2_ACCESS_KEY"],
             aws_secret_access_key=os.environ["R2_SECRET_KEY"],
             config=Config(
-                max_pool_connections=cpu_count()
+                max_pool_connections=multiprocessing.cpu_count()
             )
         )
 
