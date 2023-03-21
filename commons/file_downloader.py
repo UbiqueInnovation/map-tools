@@ -54,9 +54,6 @@ class FileDownloader:
 
     async def download(self) -> None:
         await asyncio.gather(*[self.download_file(url) for url in self.urls])
-        # async with TaskGroup() as task_group:
-        #     for path in self.urls:
-        #         task_group.create_task()
 
     @staticmethod
     def download_all(urls: Iterable[str], path: str) -> None:
