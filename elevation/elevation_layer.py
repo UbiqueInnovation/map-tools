@@ -105,7 +105,7 @@ class ElevationLayer(ABC):
         gdal.BuildVRT(
             destName=self.virtual_dataset_file_path,
             srcDSOrSrcDSTab=self.source_files,
-            options=gdal.BuildVRTOptions(resolution='highest', VRTNodata=0))
+            options=gdal.BuildVRTOptions(resolution='highest', VRTNodata=0, hideNodata=True))
 
     def cut_and_warp_to_tile(self, tile_info: TileInfo, resolution: int = 512) -> None:
         target_path = self.warped_tile_path(tile_info)

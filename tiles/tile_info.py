@@ -71,12 +71,13 @@ class TileInfo:
             TileInfo(zoom=zoom, x=x0 + 1, y=y0 + 1)
         }
 
-    def descendants(self, max_zoom: int) -> Iterable[TileInfo]:
+    def descendants(self, max_zoom: int, min_zoom: int = 0) -> Iterable[TileInfo]:
         if self.zoom > max_zoom:
             return []
 
-        yield self
+        if self.zoom >= min_zoom:
+            yield self
 
         for child in self.children:
-            for descendant in child.descendants(max_zoom):
+            for descendant in child.descendants(min_zoom=min_zoom, max_zoom=max_zoom):
                 yield descendant
