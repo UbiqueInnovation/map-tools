@@ -6,10 +6,11 @@ from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
 from typing import Iterable
 
-import requests
 from PIL import Image
 from alive_progress import alive_bar, alive_it
 from osgeo import gdal
+from requests import Session
+from requests.adapters import HTTPAdapter
 from retry import retry
 
 from storage import TileOutput
@@ -19,8 +20,11 @@ from tiles import TileInfo
 class ElevationLayer(ABC):
 
     def __init__(self, output: TileOutput = None) -> None:
-        self.thread_pool = ThreadPool(cpu_count())
+        self.num_threads = cpu_count()
         self.output = output
+        self.thread_pool = ThreadPool(self.num_threads)
+        self.session = Session()
+        self.session.mount('https://', HTTPAdapter(pool_connections=self.num_threads, pool_maxsize=self.num_threads))
 
     @property
     @abstractmethod
@@ -73,7 +77,7 @@ class ElevationLayer(ABC):
         if os.path.exists(path):
             return False  # No need to download the fle again
 
-        response = requests.get(tile_url, stream=True)
+        response = self.session.get(tile_url, stream=True)
         if response.status_code != 200:
             raise IOError(f"Could not fetch {tile_url}")
 
