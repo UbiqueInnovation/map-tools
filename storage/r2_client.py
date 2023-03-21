@@ -1,6 +1,8 @@
 import os
+from multiprocessing import cpu_count
 
 import boto3 as boto3
+from botocore.config import Config
 from dotenv import load_dotenv
 from mypy_boto3_s3.service_resource import Bucket
 
@@ -14,7 +16,10 @@ class R2Client:
             region_name='auto',
             endpoint_url=f'https://{os.environ["R2_ACCOUNT_ID"]}.r2.cloudflarestorage.com',
             aws_access_key_id=os.environ["R2_ACCESS_KEY"],
-            aws_secret_access_key=os.environ["R2_SECRET_KEY"]
+            aws_secret_access_key=os.environ["R2_SECRET_KEY"],
+            config=Config(
+                max_pool_connections=cpu_count()
+            )
         )
 
     @property
