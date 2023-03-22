@@ -8,7 +8,7 @@ from typing import Iterable
 
 from PIL import Image
 from alive_progress import alive_it
-from osgeo import gdal
+from osgeo import gdal, gdalconst
 from requests import Session
 from requests.adapters import HTTPAdapter
 from retry import retry
@@ -105,7 +105,7 @@ class ElevationLayer(ABC):
         gdal.BuildVRT(
             destName=self.virtual_dataset_file_path,
             srcDSOrSrcDSTab=self.source_files,
-            options=gdal.BuildVRTOptions(resolution='highest', VRTNodata=0, hideNodata=True))
+            options=gdal.BuildVRTOptions(resolution='highest', VRTNodata=0))
 
     def cut_and_warp_to_tile(self, tile_info: TileInfo, resolution: int = 512) -> None:
         target_path = self.warped_tile_path(tile_info)
@@ -122,6 +122,7 @@ class ElevationLayer(ABC):
                 dstSRS='EPSG:3857',
                 width=resolution,
                 height=resolution,
+                resampleAlg=gdalconst.GRA_CubicSpline,
                 outputBounds=(min_x, min_y, max_x, max_y),
                 multithread=True,
             )
