@@ -119,7 +119,7 @@ class ElevationLayer(ABC):
             destNameOrDestDS=target_path,
             srcDSOrSrcDSTab=self.virtual_dataset_file_path,
             options=gdal.WarpOptions(
-                dstSRS='EPSG:3857',
+                dstSRS=tile_info.srs,
                 width=resolution,
                 height=resolution,
                 resampleAlg=gdalconst.GRA_CubicSpline,
