@@ -1,5 +1,5 @@
 numpy==1.24.3
-gdal==3.6.4
+gdal==3.7.0
 rasterio==1.3.7
 rio-rgbify==0.4.0
 requests==2.31.0
