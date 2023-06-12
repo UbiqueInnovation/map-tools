@@ -7,7 +7,7 @@ jobs:
   sonarcloud:
     name: Sonar Cloud Analysis
     runs-on: ubuntu-latest
-    container: osgeo/gdal:latest
+    container: osgeo/gdal:ubuntu-small-latest
     steps:
       - uses: actions/checkout@v3
         with:
