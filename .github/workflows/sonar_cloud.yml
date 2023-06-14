@@ -14,8 +14,8 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Install dependencies
         run: |
-          apt-get -y update
-          apt-get install -y --fix-missing python3-pip
+          apt -y update
+          apt install -y --fix-missing python3-pip libgl1-mesa-glx
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run Tests
