@@ -8,13 +8,13 @@ This repository includes scripts for downloading and processing digital elevatio
 
 ### Example
 
-Generate elevation tiles for Switzerland
+Generate hillshade tiles for Switzerland
 
 ```python
-from tiles import TileInfo
+from tiles import WebmercatorTileInfo
 from elevation import ElevationSwitzerland
 
-ElevationSwitzerland().generate(TileInfo(zoom=6, x=33, y=22).descendants(max_zoom=14))
+ElevationSwitzerland().generate_hillshade_tiles(WebmercatorTileInfo(zoom=6, x=33, y=22).descendants(max_zoom=14))
 ```
 
 ### SwissAlti3D
