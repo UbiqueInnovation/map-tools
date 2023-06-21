@@ -5,7 +5,6 @@ from ..elevation_layer import ElevationLayer
 
 
 class SwissAlti3d(ElevationLayer):
-
     @property
     @abstractmethod
     def tile_list(self) -> str:

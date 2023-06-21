@@ -23,15 +23,15 @@ class WebmercatorTileInfo(TileInfo):
 
     @property
     def srs(self) -> str:
-        return 'EPSG:3857'
+        return "EPSG:3857"
 
     @property
     def path(self) -> str:
-        return f'{self.zoom}/{self.x}/{self.y}'
+        return f"{self.zoom}/{self.x}/{self.y}"
 
     @property
     def size(self) -> tuple[float, float]:
-        num_tiles = 2 ** self.zoom
+        num_tiles = 2**self.zoom
         tile_width = coordinate_system_width / num_tiles
         tile_height = coordinate_system_height / num_tiles
         return tile_width, tile_height
@@ -54,7 +54,7 @@ class WebmercatorTileInfo(TileInfo):
             WebmercatorTileInfo(zoom=zoom, x=x0, y=y0),
             WebmercatorTileInfo(zoom=zoom, x=x0, y=y0 + 1),
             WebmercatorTileInfo(zoom=zoom, x=x0 + 1, y=y0),
-            WebmercatorTileInfo(zoom=zoom, x=x0 + 1, y=y0 + 1)
+            WebmercatorTileInfo(zoom=zoom, x=x0 + 1, y=y0 + 1),
         }
 
     def descendants(self, max_zoom: int, min_zoom: int = 0) -> Iterable[TileInfo]:

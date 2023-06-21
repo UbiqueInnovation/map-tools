@@ -14,13 +14,16 @@ Generate hillshade tiles for Switzerland
 from tiles import WebmercatorTileInfo
 from elevation import ElevationSwitzerland
 
-ElevationSwitzerland().generate_hillshade_tiles(WebmercatorTileInfo(zoom=6, x=33, y=22).descendants(max_zoom=14))
+tiles_to_generate = WebmercatorTileInfo(zoom=6, x=33, y=22).descendants(max_zoom=14)
+ElevationSwitzerland().generate_hillshade_tiles(tiles_to_generate)
 ```
 
 ### SwissAlti3D
 
-The data can be found here: [swissALTI3D](https://www.swisstopo.admin.ch/de/geodata/height/alti3d.html)
+The data can be found
+here: [swissALTI3D](https://www.swisstopo.admin.ch/de/geodata/height/alti3d.html)
 
 ### Copernicus Digital Elevation Model datasets
 
-The data canbe found here: [Tile list](https://copernicus-dem-30m.s3.amazonaws.com/tileList.txt)
+The data canbe found
+here: [Tile list](https://copernicus-dem-30m.s3.amazonaws.com/tileList.txt)
