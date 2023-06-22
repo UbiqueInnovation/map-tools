@@ -15,8 +15,8 @@ if __name__ == "__main__":
 
     layer.generate_color_relief_tiles(
         tiles,
-        color_filename="elevation/relief-colors",
-        output=TileOutput(r2_client.maps_dev, "tiles/v1/color-relief"),
+        color_filename="elevation/relief-colors/hypsometric-tint-v3",
+        output=TileOutput(r2_client.maps_dev, "tiles/v1/hypsometric-tint-v3"),
     )
 
     layer.generate_hillshade_tiles(
