@@ -1,17 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
-  ],
-  "packageRules": [
-    {
-      "groupName": "dependencies",
-      "matchPackagePatterns": [
-        "*"
-      ]
-    }
-  ],
-  "schedule": [
-    "before 3am on the first day of the week"
+    "github>UbiqueInnovation/renovate-config-backend:base.json5"
   ]
 }
