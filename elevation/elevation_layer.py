@@ -13,7 +13,6 @@ from alive_progress import alive_it
 from osgeo import gdal, gdalconst
 from requests import Session
 from requests.adapters import HTTPAdapter
-from retry import retry
 
 from commons import TileOutput, FileDownloader
 from tiles import TileInfo
@@ -88,25 +87,6 @@ class ElevationLayer(ABC):
 
     def __str__(self) -> str:
         return self.__class__.__name__
-
-    @retry(tries=5, delay=0.1, backoff=2)
-    def fetch_tile(self, tile_url: str) -> bool:
-        file_name = tile_url.split("/")[-1]
-        path = f"{self.source_files_path}/{file_name}"
-
-        if os.path.exists(path):
-            return False  # No need to download the fle again
-
-        response = self.session.get(tile_url, stream=True)
-        if response.status_code != 200:
-            raise IOError(f"Could not fetch {tile_url}")
-
-        with open(path, "wb") as f:
-            for chunk in response:
-                f.write(chunk)
-
-                logging.debug(f"Saved {tile_url} to {path}")
-                return True
 
     def download_tiles(self) -> None:
         os.makedirs(f"data/{self.local_path}/source", exist_ok=True)
@@ -261,9 +241,6 @@ class ElevationLayer(ABC):
         tile_infos: Iterable[TileInfo],
         tile_info_consumer: Callable[[TileInfo], None],
     ) -> None:
-        self.download_tiles()
-        self.create_virtual_dataset()
-
         tile_infos_by_level = defaultdict(list)
         for tile_info in tile_infos:
             tile_infos_by_level[tile_info.zoom].append(tile_info)

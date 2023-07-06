@@ -7,7 +7,7 @@ from asyncio import Semaphore
 from typing import Iterable
 
 from alive_progress import alive_bar
-from httpx import AsyncClient, Limits
+from httpx import AsyncClient, Limits, AsyncHTTPTransport
 
 
 class FileDownloader:
@@ -19,6 +19,7 @@ class FileDownloader:
         self.client = AsyncClient(
             http2=True,
             timeout=None,
+            transport=AsyncHTTPTransport(retries=10),
             limits=Limits(max_keepalive_connections=self.max_concurrent_requests),
         )
         self.semaphore = Semaphore(self.max_concurrent_requests)
@@ -40,16 +41,19 @@ class FileDownloader:
         # Semaphore limits number of concurrent requests, by allowing at most a
         # fixed number of concurrent tasks to enter the following section
         async with self.semaphore:
-            with open(path, "wb") as f:
-                async with self.client.stream("GET", url) as response:
-                    if response.status_code != 200:
-                        raise IOError(f"Could not fetch {url}")
-
-                    async for chunk in response.aiter_bytes():
-                        f.write(chunk)
+            await self.fetch_file(path, url)
 
             logging.debug(f"Saved {url} to {path}")
             self.progress_bar()
+
+    async def fetch_file(self, path: str, url: str) -> None:
+        async with self.client.stream("GET", url) as response:
+            if response.status_code != 200:
+                raise IOError(f"Could not fetch {url}")
+
+            with open(path, "wb") as f:
+                async for chunk in response.aiter_bytes():
+                    f.write(chunk)
 
     async def download(self) -> None:
         await asyncio.gather(*[self.download_file(url) for url in self.urls])
