@@ -57,6 +57,10 @@ class WebmercatorTileInfo(TileInfo):
             WebmercatorTileInfo(zoom=zoom, x=x0 + 1, y=y0 + 1),
         }
 
+    @property
+    def parent(self) -> WebmercatorTileInfo:
+        return WebmercatorTileInfo(zoom=self.zoom - 1, x=self.x // 2, y=self.y // 2)
+
     def descendants(self, max_zoom: int, min_zoom: int = 0) -> Iterable[TileInfo]:
         if self.zoom > max_zoom:
             return []
@@ -67,3 +71,17 @@ class WebmercatorTileInfo(TileInfo):
         for child in self.children:
             for descendant in child.descendants(min_zoom=min_zoom, max_zoom=max_zoom):
                 yield descendant
+
+    def ancestors(self, min_zoom: int = 0, max_zoom: int = 30) -> Iterable[TileInfo]:
+        if self.zoom <= max_zoom:
+            yield self
+
+        if self.zoom > min_zoom:
+            yield self.parent
+            for ancestor in self.parent.ancestors(min_zoom, max_zoom):
+                yield ancestor
+
+    def overlapping(self, min_zoom: int = 0, max_zoom: int = 30) -> Iterable[TileInfo]:
+        return set(self.ancestors(min_zoom=min_zoom, max_zoom=max_zoom)).union(
+            self.descendants(min_zoom=min_zoom, max_zoom=max_zoom)
+        )

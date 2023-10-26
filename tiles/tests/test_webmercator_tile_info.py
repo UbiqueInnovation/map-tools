@@ -88,5 +88,11 @@ class TestWebmercatorTileInfo(TestCase):
             set(root.descendants(max_zoom=1)), {root}.union(root.children)
         )
 
+    def test_ancestors(self) -> None:
+        switzerland = WebmercatorTileInfo(zoom=6, x=33, y=22)
+        self.assertEqual(WebmercatorTileInfo(zoom=5, x=16, y=11), switzerland.parent)
+        ancestors = set(switzerland.ancestors())
+        self.assertEqual(len(ancestors), 7)
+
     def test_path(self) -> None:
         self.assertEqual(WebmercatorTileInfo(zoom=3, x=2, y=1).path, "3/2/1")
