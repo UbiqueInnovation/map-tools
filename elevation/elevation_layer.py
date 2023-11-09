@@ -46,7 +46,7 @@ class ElevationLayer(ABC):
 
     @property
     def data_path(self) -> str:
-        return f"data/{self.local_path}"
+        return f"../data/{self.local_path}"
 
     @property
     def virtual_dataset_file_path(self) -> str:

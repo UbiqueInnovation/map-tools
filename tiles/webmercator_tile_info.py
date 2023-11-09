@@ -85,3 +85,29 @@ class WebmercatorTileInfo(TileInfo):
         return set(self.ancestors(min_zoom=min_zoom, max_zoom=max_zoom)).union(
             self.descendants(min_zoom=min_zoom, max_zoom=max_zoom)
         )
+
+    @staticmethod
+    def within_bounds(
+        min_x: float,
+        min_y: float,
+        max_x: float,
+        max_y: float,
+        min_zoom: int = 0,
+        max_zoom: int = 30,
+    ) -> Iterable[TileInfo]:
+        def is_within_bounds(tile: TileInfo) -> bool:
+            t_min_x, t_min_y = tile.min_coordinate
+            t_max_x, t_max_y = tile.max_coordinate
+            return (
+                min_x <= t_max_x
+                and min_y <= t_max_y
+                and max_x >= t_min_x
+                and max_y >= t_min_y
+            )
+
+        return filter(
+            is_within_bounds,
+            WebmercatorTileInfo(zoom=0, x=0, y=0).descendants(
+                min_zoom=min_zoom, max_zoom=max_zoom
+            ),
+        )
