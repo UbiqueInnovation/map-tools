@@ -13,11 +13,8 @@ if __name__ == "__main__":
     s3_client = S3Client()
     output = CompositeTileOutput(
         [
-            BucketTileOutput(r2_client.maps_dev, "tiles/v1/europe/hillshade"),
-            BucketTileOutput(s3_client.meteo_swiss_test, "v1/map/hillshade/europe"),
-            BucketTileOutput(s3_client.meteo_swiss_prod, "v1/map/hillshade/europe"),
-            BucketTileOutput(s3_client.dwd_test, "v1/map/europe/hillshade"),
-            BucketTileOutput(s3_client.dwd_prod, "v1/map/europe/hillshade"),
+            BucketTileOutput(s3_client.dwd_test, "v1/map/germany/hillshade"),
+            BucketTileOutput(s3_client.dwd_prod, "v1/map/germany/hillshade"),
         ]
     )
 
@@ -25,17 +22,13 @@ if __name__ == "__main__":
 
     for level in range(0, 11):
         tiles = list(
-            WebmercatorTileInfo.within_bounds(
-                min_x=-2_500_000,
-                min_y=2_500_000,
-                max_x=5_000_000,
-                max_y=12_500_000,
+            WebmercatorTileInfo(zoom=4, x=8, y=5).overlapping(
                 max_zoom=level,
                 min_zoom=level,
             )
         )
 
-        z_factor = max(20 * 2 ** (-0.5 * level), 1.7)
+        z_factor = max(20 * 2 ** (-0.5 * level), 3)
 
         layer.generate_hillshade_tiles(
             tiles,
@@ -43,5 +36,5 @@ if __name__ == "__main__":
                 zFactor=z_factor, computeEdges=True, igor=True
             ),
             output=output,
-            input_file_path=f"{layer.data_path}/1k.tif",
+            input_file_path=f"{layer.data_path}/germany.tif",
         )

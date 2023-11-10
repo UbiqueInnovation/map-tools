@@ -19,6 +19,22 @@ class S3Client:
             config=Config(max_pool_connections=multiprocessing.cpu_count()),
         )
 
+        self.dwd_test_client = boto3.resource(
+            service_name="s3",
+            region_name="eu-central-1",
+            aws_access_key_id=os.environ["DWD_TEST_ACCESS_KEY"],
+            aws_secret_access_key=os.environ["DWD_TEST_SECRET_KEY"],
+            config=Config(max_pool_connections=multiprocessing.cpu_count()),
+        )
+
+        self.dwd_prod_client = boto3.resource(
+            service_name="s3",
+            region_name="eu-central-1",
+            aws_access_key_id=os.environ["DWD_PROD_ACCESS_KEY"],
+            aws_secret_access_key=os.environ["DWD_PROD_SECRET_KEY"],
+            config=Config(max_pool_connections=multiprocessing.cpu_count()),
+        )
+
     @property
     def meteo_swiss_test(self) -> Bucket:
         return self.meteo_swiss_client.Bucket("app-test-static-fra.meteoswiss-app.ch")
@@ -26,3 +42,11 @@ class S3Client:
     @property
     def meteo_swiss_prod(self) -> Bucket:
         return self.meteo_swiss_client.Bucket("app-prod-static-fra.meteoswiss-app.ch")
+
+    @property
+    def dwd_test(self) -> Bucket:
+        return self.dwd_test_client.Bucket("app-dev-static.warnwetter.de")
+
+    @property
+    def dwd_prod(self) -> Bucket:
+        return self.dwd_prod_client.Bucket("app-prod-static.warnwetter.de")

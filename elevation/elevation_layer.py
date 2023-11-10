@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
-from typing import Iterable, Callable, Sequence
+from typing import Iterable, Callable, Sequence, Optional
 
 import cv2
 import numpy as np
@@ -104,7 +104,12 @@ class ElevationLayer(ABC):
             options=gdal.BuildVRTOptions(resolution="highest", VRTNodata=0),
         )
 
-    def cut_and_warp_to_tile(self, tile_info: TileInfo, resolution: int = 512) -> None:
+    def cut_and_warp_to_tile(
+        self,
+        tile_info: TileInfo,
+        resolution: int = 512,
+        input_file_path: Optional[str] = None,
+    ) -> None:
         target_path = self.warped_tile_path(tile_info)
         if os.path.exists(target_path):
             return
@@ -114,7 +119,7 @@ class ElevationLayer(ABC):
         max_x, max_y = tile_info.max_coordinate
         gdal.Warp(
             destNameOrDestDS=target_path,
-            srcDSOrSrcDSTab=self.virtual_dataset_file_path,
+            srcDSOrSrcDSTab=input_file_path or self.virtual_dataset_file_path,
             options=gdal.WarpOptions(
                 dstSRS=tile_info.srs,
                 width=resolution,
@@ -182,9 +187,10 @@ class ElevationLayer(ABC):
         options: gdal.DEMProcessingOptions = None,
         passes: dict[str, gdal.DEMProcessingOptions] = None,
         output: TileOutput = None,
+        input_file_path: Optional[str] = None,
     ) -> None:
         def generate_hillshade_tile(tile_info: TileInfo) -> None:
-            self.cut_and_warp_to_tile(tile_info)
+            self.cut_and_warp_to_tile(tile_info, input_file_path=input_file_path)
             target_path = self.hillshade_tile_path(tile_info)
             if passes:
                 for key, arguments in passes.items():
@@ -215,9 +221,10 @@ class ElevationLayer(ABC):
         tile_infos: Iterable[TileInfo],
         color_filename: str,
         output: TileOutput = None,
+        input_file_path: Optional[str] = None,
     ) -> None:
         def generate_color_relief_tile(tile_info: TileInfo):
-            self.cut_and_warp_to_tile(tile_info)
+            self.cut_and_warp_to_tile(tile_info, input_file_path=input_file_path)
 
             target_path = self.color_relief_tile_path(tile_info)
             os.makedirs(os.path.dirname(target_path), exist_ok=True)
