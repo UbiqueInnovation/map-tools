@@ -31,6 +31,8 @@ class ElevationLayer(ABC):
             ),
         )
 
+        gdal.UseExceptions()
+
         # Set environment variables for GDAL
         os.environ["GDAL_PAM_ENABLED"] = "NO"
         os.environ["GDAL_MAX_DATASET_POOL_SIZE"] = f"{self.num_threads}"
@@ -109,10 +111,19 @@ class ElevationLayer(ABC):
         tile_info: TileInfo,
         resolution: int = 512,
         input_file_path: Optional[str] = None,
+        target_path: Optional[str] = None,
+        overwrite_existing: bool = False,
+        src_nodata: Optional[float] = None,
     ) -> None:
-        target_path = self.warped_tile_path(tile_info)
+        logging.debug(f"Cut and warp for tile {tile_info}")
+        target_path = target_path or self.warped_tile_path(tile_info)
+
         if os.path.exists(target_path):
-            return
+            if overwrite_existing:
+                os.remove(target_path)
+            else:
+                logging.debug(f"Skipping warping for tile {tile_info}.")
+                return
 
         os.makedirs(os.path.dirname(target_path), exist_ok=True)
         min_x, min_y = tile_info.min_coordinate
@@ -126,9 +137,12 @@ class ElevationLayer(ABC):
                 height=resolution,
                 resampleAlg=gdalconst.GRA_CubicSpline,
                 outputBounds=(min_x, min_y, max_x, max_y),
+                dstAlpha=True,
+                srcNodata=src_nodata,
                 multithread=True,
             ),
         )
+        logging.debug(f"Warped tile {tile_info}.")
 
     def process_hillshade(
         self,
@@ -243,6 +257,31 @@ class ElevationLayer(ABC):
 
         return self.apply_for_all_tile_infos(tile_infos, generate_color_relief_tile)
 
+    def generate_tiles_for_image(
+        self,
+        tile_infos: Iterable[TileInfo],
+        input_file_path: str,
+        output_folder: str,
+        output: TileOutput = None,
+        src_nodata: Optional[float] = None,
+    ) -> None:
+        def generate_tile_for_image(tile_info: TileInfo):
+            target_path = f"{output_folder}/{tile_info.path}.png"
+            os.makedirs(os.path.dirname(target_path), exist_ok=True)
+            self.cut_and_warp_to_tile(
+                tile_info,
+                input_file_path=input_file_path,
+                target_path=target_path,
+                overwrite_existing=True,
+                src_nodata=src_nodata,
+            )
+            self.image_to_rgb(target_path)
+
+            if output:
+                output.upload(target_path, tile_info)
+
+        return self.apply_for_all_tile_infos(tile_infos, generate_tile_for_image)
+
     def apply_for_all_tile_infos(
         self,
         tile_infos: Iterable[TileInfo],
@@ -252,7 +291,7 @@ class ElevationLayer(ABC):
         for tile_info in tile_infos:
             tile_infos_by_level[tile_info.zoom].append(tile_info)
 
-        for level, tile_infos_of_level in tile_infos_by_level.items():
+        for level, tile_infos_of_level in sorted(tile_infos_by_level.items()):
             logging.info(f"Generating tiles for level {level}")
             list(
                 alive_it(
