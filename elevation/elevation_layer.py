@@ -137,7 +137,6 @@ class ElevationLayer(ABC):
                 height=resolution,
                 resampleAlg=gdalconst.GRA_CubicSpline,
                 outputBounds=(min_x, min_y, max_x, max_y),
-                dstAlpha=True,
                 srcNodata=src_nodata,
                 multithread=True,
             ),

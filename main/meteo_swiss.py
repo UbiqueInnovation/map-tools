@@ -18,7 +18,7 @@ if __name__ == "__main__":
     storage_path_switzerland = "v1/map/hillshade/switzerland/light"
     layer_switzerland.generate_hillshade_tiles(
         tiles_switzerland,
-        input_file_path=f"{layer_switzerland.data_path}/2m.tif",
+        input_file_path=f"{layer_switzerland.data_path}/5m.cut.tif",
         options=gdal.DEMProcessingOptions(zFactor=1.7, computeEdges=True, igor=True),
         output=CompositeTileOutput(
             [
