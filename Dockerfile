@@ -1,4 +1,4 @@
-FROM ghcr.io/osgeo/gdal:alpine-small-latest
+FROM ghcr.io/osgeo/gdal:ubuntu-small-latest
 
 LABEL MAINTAINER=sparber@ubique.ch
 
