@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 from osgeo import gdal
 
@@ -11,6 +12,11 @@ if __name__ == "__main__":
 
     s3 = S3Client()
 
+    max_age_test = int(timedelta(days=1).total_seconds())
+    max_age_prod = int(timedelta(days=7).total_seconds())
+    cache_control_test = f"max-age={max_age_test}"
+    cache_control_prod = f"max-age={max_age_prod}"
+
     tiles_switzerland = list(
         WebmercatorTileInfo(zoom=6, x=33, y=22).overlapping(max_zoom=12)
     )
@@ -22,8 +28,16 @@ if __name__ == "__main__":
         options=gdal.DEMProcessingOptions(zFactor=1.7, computeEdges=True, igor=True),
         output=CompositeTileOutput(
             [
-                BucketTileOutput(s3.meteo_swiss_test, storage_path_switzerland),
-                BucketTileOutput(s3.meteo_swiss_prod, storage_path_switzerland),
+                BucketTileOutput(
+                    bucket=s3.meteo_swiss_test,
+                    base_path=storage_path_switzerland,
+                    cache_control=cache_control_test,
+                ),
+                BucketTileOutput(
+                    bucket=s3.meteo_swiss_prod,
+                    base_path=storage_path_switzerland,
+                    cache_control=cache_control_prod,
+                ),
             ]
         ),
     )
@@ -39,8 +53,16 @@ if __name__ == "__main__":
             src_nodata=150,
             output=CompositeTileOutput(
                 [
-                    BucketTileOutput(s3.meteo_swiss_test, storage_path_europe),
-                    BucketTileOutput(s3.meteo_swiss_prod, storage_path_europe),
+                    BucketTileOutput(
+                        bucket=s3.meteo_swiss_test,
+                        base_path=storage_path_europe,
+                        cache_control=cache_control_test,
+                    ),
+                    BucketTileOutput(
+                        bucket=s3.meteo_swiss_prod,
+                        base_path=storage_path_europe,
+                        cache_control=cache_control_prod,
+                    ),
                 ]
             ),
         )
