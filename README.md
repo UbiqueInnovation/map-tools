@@ -12,10 +12,10 @@ Generate hillshade tiles for Switzerland
 
 ```python
 from tiles import WebmercatorTileInfo
-from elevation import ElevationSwitzerland
+from elevation import SwissAlti3d
 
 tiles_to_generate = WebmercatorTileInfo(zoom=6, x=33, y=22).descendants(max_zoom=14)
-ElevationSwitzerland().generate_hillshade_tiles(tiles_to_generate)
+SwissAlti3d().generate_hillshade_tiles(tiles_to_generate)
 ```
 
 ### SwissAlti3D

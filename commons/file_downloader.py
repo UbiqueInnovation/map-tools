@@ -51,9 +51,12 @@ class FileDownloader:
             if response.status_code != 200:
                 raise IOError(f"Could not fetch {url}")
 
-            with open(path, "wb") as f:
-                async for chunk in response.aiter_bytes():
+            download_path = f"{path}.part"
+            with open(download_path, "wb") as f:
+                async for chunk in response.aiter_bytes(chunk_size=1024**2):
                     f.write(chunk)
+
+            os.rename(download_path, path)
 
     async def download(self) -> None:
         await asyncio.gather(*[self.download_file(url) for url in self.urls])
