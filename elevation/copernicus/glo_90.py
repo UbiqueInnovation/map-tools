@@ -6,7 +6,7 @@ from ..elevation_layer import ElevationLayer
 class Glo90(ElevationLayer):
     @property
     def local_path(self) -> str:
-        return "global/glo90"
+        return "Glo90"
 
     @staticmethod
     def tile_names() -> list[str]:

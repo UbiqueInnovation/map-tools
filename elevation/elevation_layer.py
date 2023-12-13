@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageChops, ImageEnhance
 from alive_progress import alive_it
+from dotenv import load_dotenv
 from osgeo import gdal, gdalconst
 from requests import Session
 from requests.adapters import HTTPAdapter
@@ -20,6 +21,7 @@ from tiles import TileInfo
 
 class ElevationLayer(ABC):
     def __init__(self) -> None:
+        load_dotenv()  # take environment variables from .env.
         self.num_threads = cpu_count()
 
         self.thread_pool = ThreadPool(self.num_threads)
@@ -48,7 +50,7 @@ class ElevationLayer(ABC):
 
     @property
     def data_path(self) -> str:
-        return f"../data/{self.local_path}"
+        return f"{os.environ['DATA_PATH']}/{self.local_path}"
 
     @property
     def virtual_dataset_file_path(self) -> str:
@@ -91,7 +93,7 @@ class ElevationLayer(ABC):
         return self.__class__.__name__
 
     def download_tiles(self) -> None:
-        os.makedirs(f"data/{self.local_path}/source", exist_ok=True)
+        os.makedirs(f"{self.data_path}/source", exist_ok=True)
         FileDownloader.download_all(self.get_urls(), self.source_files_path)
 
     def create_virtual_dataset(self) -> None:

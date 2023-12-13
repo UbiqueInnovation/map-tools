@@ -11,5 +11,5 @@ class SwissAlti3d(ElevationLayer):
         pass
 
     def get_urls(self) -> Iterable[str]:
-        with open(f"elevation/swissalti3d/{self.tile_list}") as tile_list:
+        with open(f"../elevation/swissalti3d/{self.tile_list}") as tile_list:
             return [t.strip() for t in tile_list.readlines()]

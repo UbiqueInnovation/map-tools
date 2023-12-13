@@ -16,4 +16,4 @@ class ElevationSwitzerland(SwissAlti3d):
 
     @property
     def local_path(self) -> str:
-        return "switzerland/all/50cm" if self.high_res else "switzerland/all/2m"
+        return "SwissAlti3d/50cm" if self.high_res else "SwissAlti3d/2m"
