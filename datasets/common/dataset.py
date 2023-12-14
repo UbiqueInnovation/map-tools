@@ -13,7 +13,7 @@ class Dataset:
     @staticmethod
     def parent_path() -> str:
         load_dotenv()  # take environment variables from .env.
-        return os.environ["DATA_PATH"]
+        return os.environ.get("DATA_PATH", "./data")
 
     def tile_set(self, name: str, file_extension: str) -> TileSet:
         return TileSet(f"{self.base_path}/{name}", file_extension)
