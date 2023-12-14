@@ -1,8 +1,11 @@
 import logging
 from datetime import timedelta
 
+from osgeo import gdal
+
 from commons import S3Client, CompositeTileOutput, BucketTileOutput
-from elevation import Glo90
+from datasets import Dataset
+from elevation import ElevationTools
 from tiles import WebmercatorTileInfo
 
 if __name__ == "__main__":
@@ -15,7 +18,6 @@ if __name__ == "__main__":
     cache_control_test = f"max-age={max_age_test}"
     cache_control_prod = f"max-age={max_age_prod}"
 
-    layer_europe = Glo90()
     tiles_europe = list(
         WebmercatorTileInfo.within_bounds(
             min_x=-1_669_792,  # lon -15
@@ -28,10 +30,11 @@ if __name__ == "__main__":
 
     for style in ["light", "dark"]:
         storage_path_europe = f"v1/map/europe/hillshade/{style}"
-        layer_europe.generate_tiles_for_image(
-            tiles_europe,
-            input_file_path=f"{layer_europe.data_path}/dwd-europe-{style}.tif",
-            output_folder=f"{layer_europe.data_path}/dwd-europe-{style}",
+        dataset = Dataset(f"DWD/europe-{style}.tif")
+        ElevationTools().generate_tiles_for_image(
+            tile_infos=tiles_europe,
+            dataset=dataset,
+            target=dataset.tile_set(f"europe-{style}", "png"),
             src_nodata=150,
             output=CompositeTileOutput(
                 [
@@ -45,6 +48,30 @@ if __name__ == "__main__":
                         base_path=storage_path_europe,
                         cache_control=cache_control_prod,
                     ),
+                ]
+            ),
+        )
+
+    for level in range(0, 11):
+        tiles = list(
+            WebmercatorTileInfo(zoom=4, x=8, y=5).overlapping(
+                max_zoom=level,
+                min_zoom=level,
+            )
+        )
+
+        z_factor = max(20 * 2 ** (-0.5 * level), 3)
+
+        ElevationTools().generate_hillshade_tiles(
+            dataset=Dataset("DWD/germany.tif"),
+            tile_infos=tiles,
+            options=gdal.DEMProcessingOptions(
+                zFactor=z_factor, computeEdges=True, igor=True
+            ),
+            output=CompositeTileOutput(
+                [
+                    BucketTileOutput(s3.dwd_test, "v1/map/germany/hillshade"),
+                    BucketTileOutput(s3.dwd_prod, "v1/map/germany/hillshade"),
                 ]
             ),
         )

@@ -4,7 +4,8 @@ from datetime import timedelta
 from osgeo import gdal
 
 from commons import CompositeTileOutput, BucketTileOutput, S3Client
-from elevation import Glo90, ElevationSwitzerland
+from datasets import SwissAlti3d, Dataset
+from elevation import ElevationTools
 from tiles import WebmercatorTileInfo
 
 if __name__ == "__main__":
@@ -20,11 +21,10 @@ if __name__ == "__main__":
     tiles_switzerland = list(
         WebmercatorTileInfo(zoom=6, x=33, y=22).overlapping(max_zoom=12)
     )
-    layer_switzerland = ElevationSwitzerland()
     storage_path_switzerland = "v1/map/hillshade/switzerland/light"
-    layer_switzerland.generate_hillshade_tiles(
-        tiles_switzerland,
-        input_file_path=f"{layer_switzerland.data_path}/5m.cut.tif",
+    ElevationTools().generate_hillshade_tiles(
+        dataset=SwissAlti3d().resolve("5m.cut.tif"),
+        tile_infos=tiles_switzerland,
         options=gdal.DEMProcessingOptions(zFactor=1.7, computeEdges=True, igor=True),
         output=CompositeTileOutput(
             [
@@ -42,14 +42,14 @@ if __name__ == "__main__":
         ),
     )
 
-    layer_europe = Glo90()
     tiles_europe = list(WebmercatorTileInfo(zoom=4, x=8, y=5).overlapping(max_zoom=10))
     for style in ["light", "dark"]:
         storage_path_europe = f"v1/map/hillshade/europe/{style}"
-        layer_europe.generate_tiles_for_image(
-            tiles_europe,
-            input_file_path=f"{layer_europe.data_path}/meteo-swiss-europe-{style}.tif",
-            output_folder=f"{layer_europe.data_path}/meteo-swiss-europe-{style}",
+        dataset = Dataset(f"MeteoSwiss/europe-{style}.tif")
+        ElevationTools().generate_tiles_for_image(
+            tile_infos=tiles_europe,
+            dataset=dataset,
+            target=dataset.tile_set(f"europe-{style}", "png"),
             src_nodata=150,
             output=CompositeTileOutput(
                 [

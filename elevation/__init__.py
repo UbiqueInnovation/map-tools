@@ -1,2 +1,1 @@
-from .copernicus import *
-from .swissalti3d import *
+from .elevation_tools import ElevationTools

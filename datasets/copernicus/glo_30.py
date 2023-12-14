@@ -1,15 +1,14 @@
 from typing import Iterable
 from urllib.request import urlopen
 
-from ..elevation_layer import ElevationLayer
+from datasets.common.downloadable_dataset import DownloadableDataset
 
 
-class Glo30(ElevationLayer):
+class Glo30(DownloadableDataset):
     base_url = "https://copernicus-dem-30m.s3.amazonaws.com"
 
-    @property
-    def local_path(self) -> str:
-        return "Glo30"
+    def __init__(self) -> None:
+        super().__init__("Glo30")
 
     @staticmethod
     def tile_names() -> list[str]:

@@ -3,7 +3,8 @@ import logging
 from osgeo import gdal
 
 from commons import R2Client, S3Client, CompositeTileOutput, BucketTileOutput
-from elevation import Glo90
+from datasets import Glo90, Dataset
+from elevation import ElevationTools
 from tiles import WebmercatorTileInfo
 
 if __name__ == "__main__":
@@ -21,7 +22,7 @@ if __name__ == "__main__":
         ]
     )
 
-    layer = Glo90()
+    dataset = Glo90()
 
     for level in range(0, 11):
         tiles = list(
@@ -37,11 +38,11 @@ if __name__ == "__main__":
 
         z_factor = max(20 * 2 ** (-0.5 * level), 1.7)
 
-        layer.generate_hillshade_tiles(
-            tiles,
+        ElevationTools().generate_hillshade_tiles(
+            tile_infos=tiles,
+            dataset=Dataset(f"{dataset.base_path}/1k.tif"),
             options=gdal.DEMProcessingOptions(
                 zFactor=z_factor, computeEdges=True, igor=True
             ),
             output=output,
-            input_file_path=f"{layer.data_path}/1k.tif",
         )
