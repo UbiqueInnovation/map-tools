@@ -14,7 +14,7 @@ class Glo90(ElevationLayer):
     @staticmethod
     def tile_names() -> list[str]:
         with urlopen(f"{Glo90.base_url}/tileList.txt") as tile_list:
-            return [t.strip() for t in tile_list.readlines()]
+            return [t.decode().strip() for t in tile_list.readlines()]
 
     @staticmethod
     def to_url(tile_name: str) -> str:

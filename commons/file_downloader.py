@@ -7,7 +7,7 @@ from asyncio import Semaphore
 from typing import Iterable
 
 from alive_progress import alive_bar
-from httpx import AsyncClient, Limits, AsyncHTTPTransport
+from httpx import AsyncClient, Limits, AsyncHTTPTransport, HTTPError
 
 
 class FileDownloader:
@@ -46,17 +46,24 @@ class FileDownloader:
             logging.debug(f"Saved {url} to {path}")
             self.progress_bar()
 
-    async def fetch_file(self, path: str, url: str) -> None:
-        async with self.client.stream("GET", url) as response:
-            if response.status_code != 200:
-                raise IOError(f"Could not fetch {url}")
+    async def fetch_file(self, path: str, url: str, retries: int = 10) -> None:
+        try:
+            async with self.client.stream("GET", url) as response:
+                if response.status_code != 200:
+                    raise IOError(f"Could not fetch {url}")
 
-            download_path = f"{path}.part"
-            with open(download_path, "wb") as f:
-                async for chunk in response.aiter_bytes(chunk_size=1024**2):
-                    f.write(chunk)
+                download_path = f"{path}.part"
+                with open(download_path, "wb") as f:
+                    async for chunk in response.aiter_bytes(chunk_size=1024**2):
+                        f.write(chunk)
 
-            os.rename(download_path, path)
+                os.rename(download_path, path)
+        except HTTPError as e:
+            # Retry
+            if retries > 0:
+                await self.fetch_file(path, url, retries - 1)
+            else:
+                raise e
 
     async def download(self) -> None:
         await asyncio.gather(*[self.download_file(url) for url in self.urls])
