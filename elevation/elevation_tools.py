@@ -17,19 +17,19 @@ from tiles import TileInfo
 
 
 class ElevationTools:
-    def __init__(self) -> None:
-        self.num_threads = cpu_count()
-        self.thread_pool = ThreadPool(self.num_threads)
+    # Set up thread pool
+    num_threads = cpu_count()
+    thread_pool = ThreadPool(num_threads)
 
-        # Set environment variables for GDAL
-        os.environ["GDAL_PAM_ENABLED"] = "NO"
-        os.environ["GDAL_MAX_DATASET_POOL_SIZE"] = f"{self.num_threads}"
+    # Set environment variables for GDAL
+    os.environ["GDAL_PAM_ENABLED"] = "NO"
+    os.environ["GDAL_MAX_DATASET_POOL_SIZE"] = f"{num_threads}"
 
-        self.gdal = gdal
-        self.gdal.UseExceptions()
+    # Configure gdal
+    gdal.UseExceptions()
 
+    @staticmethod
     def warp_to_tile(
-        self,
         tile_info: TileInfo,
         source: Dataset,
         target_path: str,
@@ -49,7 +49,7 @@ class ElevationTools:
         os.makedirs(os.path.dirname(target_path), exist_ok=True)
         min_x, min_y = tile_info.min_coordinate
         max_x, max_y = tile_info.max_coordinate
-        self.gdal.Warp(
+        gdal.Warp(
             destNameOrDestDS=target_path,
             srcDSOrSrcDSTab=source.path,
             options=gdal.WarpOptions(
@@ -64,15 +64,15 @@ class ElevationTools:
         )
         logging.debug(f"Warped tile {tile_info}.")
 
+    @staticmethod
     def hillshade(
-        self,
         source_path: str,
         target_path: str,
         options: gdal.DEMProcessingOptions = None,
     ):
         os.makedirs(os.path.dirname(target_path), exist_ok=True)
 
-        self.gdal.DEMProcessing(
+        gdal.DEMProcessing(
             destName=target_path,
             srcDS=source_path,
             processing="hillshade",
@@ -114,8 +114,8 @@ class ElevationTools:
         ).astype("uint8")
         return Image.fromarray(cv2.LUT(np.asarray(image), table))
 
+    @staticmethod
     def generate_hillshade_tiles(
-        self,
         dataset: Dataset,
         tile_infos: Iterable[TileInfo],
         target: TileSet = None,
@@ -127,13 +127,17 @@ class ElevationTools:
 
         def generate_hillshade_tile(tile_info: TileInfo) -> None:
             warped_path = dataset.warped.tile_path(tile_info)
-            self.warp_to_tile(tile_info, source=dataset, target_path=warped_path)
+            ElevationTools.warp_to_tile(
+                tile_info, source=dataset, target_path=warped_path
+            )
             if passes:
                 for key, arguments in passes.items():
                     target_base_path = f"{target.tile_base_path(tile_info)}_{key}"
                     target_path = f"{target_base_path}.png"
-                    self.hillshade(warped_path, target_path, arguments["options"])
-                    self.adjust_image(
+                    ElevationTools.hillshade(
+                        warped_path, target_path, arguments["options"]
+                    )
+                    ElevationTools.adjust_image(
                         target_path,
                         f"{target_base_path}_adjusted.png",
                         **arguments.get("corrections", dict()),
@@ -143,19 +147,23 @@ class ElevationTools:
                     f"{target.tile_base_path(tile_info)}_{key}_adjusted.png"
                     for key in passes.keys()
                 ]
-                self.multiply_images(paths).save(target.tile_path(tile_info))
+                ElevationTools.multiply_images(paths).save(target.tile_path(tile_info))
 
             else:
-                self.hillshade(warped_path, target.tile_path(tile_info), options)
-                self.image_to_rgb(target.tile_path(tile_info))
+                ElevationTools.hillshade(
+                    warped_path, target.tile_path(tile_info), options
+                )
+                ElevationTools.image_to_rgb(target.tile_path(tile_info))
 
             if output:
                 output.upload(target.tile_path(tile_info), tile_info)
 
-        return self.apply_for_all_tile_infos(tile_infos, generate_hillshade_tile)
+        return ElevationTools.apply_for_all_tile_infos(
+            tile_infos, generate_hillshade_tile
+        )
 
+    @staticmethod
     def generate_color_relief_tiles(
-        self,
         dataset: Dataset,
         tile_infos: Iterable[TileInfo],
         color_filename: str,
@@ -163,7 +171,7 @@ class ElevationTools:
     ) -> None:
         def generate_color_relief_tile(tile_info: TileInfo):
             warped_tile_path = dataset.warped.tile_path(tile_info)
-            self.warp_to_tile(tile_info, dataset, warped_tile_path)
+            ElevationTools.warp_to_tile(tile_info, dataset, warped_tile_path)
 
             target_path = dataset.color_relief.tile_path(tile_info)
             os.makedirs(os.path.dirname(target_path), exist_ok=True)
@@ -180,10 +188,12 @@ class ElevationTools:
             if output:
                 output.upload(target_path, tile_info)
 
-        return self.apply_for_all_tile_infos(tile_infos, generate_color_relief_tile)
+        return ElevationTools.apply_for_all_tile_infos(
+            tile_infos, generate_color_relief_tile
+        )
 
+    @staticmethod
     def generate_tiles_for_image(
-        self,
         dataset: Dataset,
         tile_infos: Iterable[TileInfo],
         target: TileSet,
@@ -193,36 +203,36 @@ class ElevationTools:
         def generate_tile_for_image(tile_info: TileInfo):
             target_path = target.tile_path(tile_info)
             os.makedirs(os.path.dirname(target_path), exist_ok=True)
-            self.warp_to_tile(
+            ElevationTools.warp_to_tile(
                 tile_info,
                 source=dataset,
                 target_path=target_path,
                 overwrite_existing=True,
                 src_nodata=src_nodata,
             )
-            self.image_to_rgb(target_path)
+            ElevationTools.image_to_rgb(target_path)
 
             if output:
                 output.upload(target_path, tile_info)
 
-        return self.apply_for_all_tile_infos(tile_infos, generate_tile_for_image)
+        return ElevationTools.apply_for_all_tile_infos(
+            tile_infos, generate_tile_for_image
+        )
 
+    @staticmethod
     def apply_for_all_tile_infos(
-        self,
         tile_infos: Iterable[TileInfo],
         tile_info_consumer: Callable[[TileInfo], None],
     ) -> None:
         tile_infos_by_level = defaultdict(list)
         for tile_info in tile_infos:
+            # noinspection PyUnresolvedReferences
             tile_infos_by_level[tile_info.zoom].append(tile_info)
 
         for level, tile_infos_of_level in sorted(tile_infos_by_level.items()):
             logging.info(f"Generating tiles for level {level}")
-            list(
-                alive_it(
-                    self.thread_pool.imap_unordered(
-                        tile_info_consumer, tile_infos_of_level
-                    ),
-                    total=len(tile_infos_of_level),
-                )
+            apply_function = ElevationTools.thread_pool.imap_unordered(
+                tile_info_consumer, tile_infos_of_level
             )
+            # noinspection PyTypeChecker
+            list(alive_it(apply_function, total=len(tile_infos_of_level)))

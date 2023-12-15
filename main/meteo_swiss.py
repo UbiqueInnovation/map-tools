@@ -22,7 +22,7 @@ if __name__ == "__main__":
         WebmercatorTileInfo(zoom=6, x=33, y=22).overlapping(max_zoom=12)
     )
     storage_path_switzerland = "v1/map/hillshade/switzerland/light"
-    ElevationTools().generate_hillshade_tiles(
+    ElevationTools.generate_hillshade_tiles(
         dataset=SwissAlti3d().resolve("5m.cut.tif"),
         tile_infos=tiles_switzerland,
         options=gdal.DEMProcessingOptions(zFactor=1.7, computeEdges=True, igor=True),
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     for style in ["light", "dark"]:
         storage_path_europe = f"v1/map/hillshade/europe/{style}"
         dataset = Dataset(f"MeteoSwiss/europe-{style}.tif")
-        ElevationTools().generate_tiles_for_image(
+        ElevationTools.generate_tiles_for_image(
             tile_infos=tiles_europe,
             dataset=dataset,
             target=dataset.tile_set(f"europe-{style}", "png"),

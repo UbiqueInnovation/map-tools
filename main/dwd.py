@@ -31,7 +31,7 @@ if __name__ == "__main__":
     for style in ["light", "dark"]:
         storage_path_europe = f"v1/map/europe/hillshade/{style}"
         dataset = Dataset(f"DWD/europe-{style}.tif")
-        ElevationTools().generate_tiles_for_image(
+        ElevationTools.generate_tiles_for_image(
             tile_infos=tiles_europe,
             dataset=dataset,
             target=dataset.tile_set(f"europe-{style}", "png"),
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
         z_factor = max(20 * 2 ** (-0.5 * level), 3)
 
-        ElevationTools().generate_hillshade_tiles(
+        ElevationTools.generate_hillshade_tiles(
             dataset=Dataset("DWD/germany.tif"),
             tile_infos=tiles,
             options=gdal.DEMProcessingOptions(

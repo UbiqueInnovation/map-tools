@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
         z_factor = max(20 * 2 ** (-0.5 * level), 1.7)
 
-        ElevationTools().generate_hillshade_tiles(
+        ElevationTools.generate_hillshade_tiles(
             tile_infos=tiles,
             dataset=dataset.resolve("1k.tif"),
             options=gdal.DEMProcessingOptions(
