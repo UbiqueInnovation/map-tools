@@ -15,10 +15,6 @@ if __name__ == "__main__":
     output = CompositeTileOutput(
         [
             BucketTileOutput(r2_client.maps_dev, "tiles/v1/europe/hillshade"),
-            BucketTileOutput(s3_client.meteo_swiss_test, "v1/map/hillshade/europe"),
-            BucketTileOutput(s3_client.meteo_swiss_prod, "v1/map/hillshade/europe"),
-            BucketTileOutput(s3_client.dwd_test, "v1/map/europe/hillshade"),
-            BucketTileOutput(s3_client.dwd_prod, "v1/map/europe/hillshade"),
         ]
     )
 
@@ -40,7 +36,7 @@ if __name__ == "__main__":
 
         ElevationTools().generate_hillshade_tiles(
             tile_infos=tiles,
-            dataset=Dataset(f"{dataset.base_path}/1k.tif"),
+            dataset=dataset.resolve("1k.tif"),
             options=gdal.DEMProcessingOptions(
                 zFactor=z_factor, computeEdges=True, igor=True
             ),

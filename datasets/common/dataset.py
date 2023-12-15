@@ -6,8 +6,8 @@ from . import TileSet
 
 
 class Dataset:
-    def __init__(self, relative_path: str) -> None:
-        self.path = f"{Dataset.parent_path()}/{relative_path}"
+    def __init__(self, path: str, is_relative: bool = True) -> None:
+        self.path = f"{Dataset.parent_path()}/{path}" if is_relative else path
         self.base_path = os.path.dirname(self.path)
 
     @staticmethod
@@ -19,7 +19,7 @@ class Dataset:
         return TileSet(f"{self.base_path}/{name}", file_extension)
 
     def resolve(self, relative_path: str) -> "Dataset":
-        return Dataset(f"{self.base_path}/{relative_path}")
+        return Dataset(f"{self.base_path}/{relative_path}", is_relative=False)
 
     @property
     def warped(self) -> TileSet:

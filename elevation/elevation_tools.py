@@ -132,7 +132,7 @@ class ElevationTools:
                 for key, arguments in passes.items():
                     target_base_path = f"{target.tile_base_path(tile_info)}_{key}"
                     target_path = f"{target_base_path}.png"
-                    self.hillshade(dataset.path, target_path, arguments["options"])
+                    self.hillshade(warped_path, target_path, arguments["options"])
                     self.adjust_image(
                         target_path,
                         f"{target_base_path}_adjusted.png",
@@ -143,14 +143,14 @@ class ElevationTools:
                     f"{target.tile_base_path(tile_info)}_{key}_adjusted.png"
                     for key in passes.keys()
                 ]
-                self.multiply_images(paths).save(warped_path)
+                self.multiply_images(paths).save(target.tile_path(tile_info))
 
             else:
-                self.hillshade(dataset.path, target.tile_path(tile_info), options)
-                self.image_to_rgb(warped_path)
+                self.hillshade(warped_path, target.tile_path(tile_info), options)
+                self.image_to_rgb(target.tile_path(tile_info))
 
             if output:
-                output.upload(warped_path, tile_info)
+                output.upload(target.tile_path(tile_info), tile_info)
 
         return self.apply_for_all_tile_infos(tile_infos, generate_hillshade_tile)
 
