@@ -35,6 +35,22 @@ class S3Client:
             config=Config(max_pool_connections=multiprocessing.cpu_count()),
         )
 
+        self.viadi_dev_client = boto3.resource(
+            service_name="s3",
+            region_name="eu-central-1",
+            aws_access_key_id=os.environ["VIADI_DEV_ACCESS_KEY"],
+            aws_secret_access_key=os.environ["VIADI_DEV_SECRET_KEY"],
+            config=Config(max_pool_connections=multiprocessing.cpu_count()),
+        )
+
+        self.viadi_prod_client = boto3.resource(
+            service_name="s3",
+            region_name="eu-central-1",
+            aws_access_key_id=os.environ["VIADI_PROD_ACCESS_KEY"],
+            aws_secret_access_key=os.environ["VIADI_PROD_SECRET_KEY"],
+            config=Config(max_pool_connections=multiprocessing.cpu_count()),
+        )
+
     @property
     def meteo_swiss_test(self) -> Bucket:
         return self.meteo_swiss_client.Bucket("app-test-static-fra.meteoswiss-app.ch")
@@ -50,3 +66,11 @@ class S3Client:
     @property
     def dwd_prod(self) -> Bucket:
         return self.dwd_prod_client.Bucket("app-prod-static.warnwetter.de")
+
+    @property
+    def viadi_dev(self) -> Bucket:
+        return self.viadi_dev_client.Bucket("app-dev-static.viadi-zero.ch")
+
+    @property
+    def viadi_prod(self) -> Bucket:
+        return self.viadi_prod_client.Bucket("app-prod-static.viadi-zero.ch")
