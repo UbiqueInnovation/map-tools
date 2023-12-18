@@ -1,8 +1,6 @@
 import logging
 from datetime import timedelta
 
-from osgeo import gdal
-
 from commons import S3Client, CompositeTileOutput, BucketTileOutput
 from datasets import Dataset
 from elevation import ElevationTools
@@ -29,49 +27,52 @@ if __name__ == "__main__":
     )
 
     for style in ["light", "dark"]:
-        storage_path_europe = f"v1/map/europe/hillshade/{style}"
-        dataset = Dataset(f"DWD/europe-{style}.tif")
-        ElevationTools.generate_tiles_for_image(
+        dataset = Dataset("DWD/europe.tif")
+        storage_path_color_relief_europe = f"v1/map/europe/color-relief/{style}"
+        ElevationTools.generate_color_relief_tiles(
             tile_infos=tiles_europe,
             dataset=dataset,
-            target=dataset.tile_set(f"europe-{style}", "png"),
-            src_nodata=150,
+            color_filename=f"../elevation/relief-colors/{style}",
             output=CompositeTileOutput(
                 [
                     BucketTileOutput(
                         bucket=s3.dwd_test,
-                        base_path=storage_path_europe,
+                        base_path=storage_path_color_relief_europe,
                         cache_control=cache_control_test,
                     ),
                     BucketTileOutput(
                         bucket=s3.dwd_prod,
-                        base_path=storage_path_europe,
+                        base_path=storage_path_color_relief_europe,
                         cache_control=cache_control_prod,
                     ),
                 ]
             ),
         )
 
-    for level in range(0, 11):
-        tiles = list(
-            WebmercatorTileInfo(zoom=4, x=8, y=5).overlapping(
-                max_zoom=level,
-                min_zoom=level,
+    tiles_germany = list(WebmercatorTileInfo(zoom=4, x=8, y=5).overlapping(max_zoom=10))
+    tiles = dict(germany=tiles_germany, europe=tiles_europe)
+
+    for extract in ["germany", "europe"]:
+        for style in ["light", "dark"]:
+            storage_path_hillshade = f"v1/map/{extract}/hillshade/{style}"
+            dataset = Dataset(f"DWD/{extract}-{style}.tif")
+            ElevationTools.generate_tiles_for_image(
+                tile_infos=tiles[extract],
+                dataset=dataset,
+                target=dataset.tile_set(f"{extract}-{style}", "png"),
+                src_nodata=150,
+                output=CompositeTileOutput(
+                    [
+                        BucketTileOutput(
+                            bucket=s3.dwd_test,
+                            base_path=storage_path_hillshade,
+                            cache_control=cache_control_test,
+                        ),
+                        BucketTileOutput(
+                            bucket=s3.dwd_prod,
+                            base_path=storage_path_hillshade,
+                            cache_control=cache_control_prod,
+                        ),
+                    ]
+                ),
             )
-        )
-
-        z_factor = max(20 * 2 ** (-0.5 * level), 3)
-
-        ElevationTools.generate_hillshade_tiles(
-            dataset=Dataset("DWD/germany.tif"),
-            tile_infos=tiles,
-            options=gdal.DEMProcessingOptions(
-                zFactor=z_factor, computeEdges=True, igor=True
-            ),
-            output=CompositeTileOutput(
-                [
-                    BucketTileOutput(s3.dwd_test, "v1/map/germany/hillshade"),
-                    BucketTileOutput(s3.dwd_prod, "v1/map/germany/hillshade"),
-                ]
-            ),
-        )

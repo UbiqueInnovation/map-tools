@@ -23,7 +23,7 @@ if __name__ == "__main__":
     storage_path_color_relief = "map/color-relief"
     ElevationTools.generate_color_relief_tiles(
         dataset=SwissAlti3d().resolve("5m.cut.tif"),
-        color_filename="../elevation/relief-colors/default",
+        color_filename="../elevation/relief-colors/light",
         tile_infos=tiles,
         output=CompositeTileOutput(
             [
