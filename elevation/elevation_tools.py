@@ -36,6 +36,7 @@ class ElevationTools:
         resolution: int = 512,
         overwrite_existing: bool = False,
         src_nodata: Optional[float] = None,
+        cutline: Optional[str] = None,
     ) -> None:
         logging.debug(f"Cut and warp for tile {tile_info}")
 
@@ -59,6 +60,7 @@ class ElevationTools:
                 resampleAlg=gdalconst.GRA_CubicSpline,
                 outputBounds=(min_x, min_y, max_x, max_y),
                 srcNodata=src_nodata,
+                cutlineDSName=cutline,
                 multithread=True,
             ),
         )
@@ -199,6 +201,7 @@ class ElevationTools:
         target: TileSet,
         output: TileOutput = None,
         src_nodata: Optional[float] = None,
+        cutline: Optional[str] = None,
     ) -> None:
         def generate_tile_for_image(tile_info: TileInfo):
             target_path = target.tile_path(tile_info)
@@ -209,6 +212,7 @@ class ElevationTools:
                 target_path=target_path,
                 overwrite_existing=True,
                 src_nodata=src_nodata,
+                cutline=cutline,
             )
             ElevationTools.image_to_rgb(target_path)
 

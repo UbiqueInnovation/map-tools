@@ -16,6 +16,37 @@ if __name__ == "__main__":
     cache_control_test = f"max-age={max_age_test}"
     cache_control_prod = f"max-age={max_age_prod}"
 
+    base_tile = WebmercatorTileInfo(zoom=4, x=8, y=5)
+    tiles_and_cutline = [
+        (base_tile.overlapping(max_zoom=8), "cutline-germany-5M.gpkg"),
+        (base_tile.overlapping(min_zoom=9, max_zoom=10), "cutline-germany-250k.gpkg"),
+    ]
+    for tiles, cutline in tiles_and_cutline:
+        for style in ["light", "dark"]:
+            storage_path_hillshade = f"v1/map/germany/hillshade/{style}"
+            dataset = Dataset(f"DWD/germany-{style}.tif")
+            ElevationTools.generate_tiles_for_image(
+                tile_infos=tiles,
+                dataset=dataset,
+                target=dataset.tile_set(f"germany-{style}", "png"),
+                src_nodata=0,
+                cutline=dataset.resolve(cutline).path,
+                output=CompositeTileOutput(
+                    [
+                        BucketTileOutput(
+                            bucket=s3.dwd_test,
+                            base_path=storage_path_hillshade,
+                            cache_control=cache_control_test,
+                        ),
+                        BucketTileOutput(
+                            bucket=s3.dwd_prod,
+                            base_path=storage_path_hillshade,
+                            cache_control=cache_control_prod,
+                        ),
+                    ]
+                ),
+            )
+
     tiles_europe = list(
         WebmercatorTileInfo.within_bounds(
             min_x=-1_669_792,  # lon -15
@@ -49,30 +80,26 @@ if __name__ == "__main__":
             ),
         )
 
-    tiles_germany = list(WebmercatorTileInfo(zoom=4, x=8, y=5).overlapping(max_zoom=10))
-    tiles = dict(germany=tiles_germany, europe=tiles_europe)
-
-    for extract in ["germany", "europe"]:
-        for style in ["light", "dark"]:
-            storage_path_hillshade = f"v1/map/{extract}/hillshade/{style}"
-            dataset = Dataset(f"DWD/{extract}-{style}.tif")
-            ElevationTools.generate_tiles_for_image(
-                tile_infos=tiles[extract],
-                dataset=dataset,
-                target=dataset.tile_set(f"{extract}-{style}", "png"),
-                src_nodata=150,
-                output=CompositeTileOutput(
-                    [
-                        BucketTileOutput(
-                            bucket=s3.dwd_test,
-                            base_path=storage_path_hillshade,
-                            cache_control=cache_control_test,
-                        ),
-                        BucketTileOutput(
-                            bucket=s3.dwd_prod,
-                            base_path=storage_path_hillshade,
-                            cache_control=cache_control_prod,
-                        ),
-                    ]
-                ),
-            )
+    for style in ["light", "dark"]:
+        storage_path_hillshade = f"v1/map/europe/hillshade/{style}"
+        dataset = Dataset(f"DWD/europe-{style}.tif")
+        ElevationTools.generate_tiles_for_image(
+            tile_infos=tiles_europe,
+            dataset=dataset,
+            target=dataset.tile_set(f"europe-{style}", "png"),
+            src_nodata=150,
+            output=CompositeTileOutput(
+                [
+                    BucketTileOutput(
+                        bucket=s3.dwd_test,
+                        base_path=storage_path_hillshade,
+                        cache_control=cache_control_test,
+                    ),
+                    BucketTileOutput(
+                        bucket=s3.dwd_prod,
+                        base_path=storage_path_hillshade,
+                        cache_control=cache_control_prod,
+                    ),
+                ]
+            ),
+        )
