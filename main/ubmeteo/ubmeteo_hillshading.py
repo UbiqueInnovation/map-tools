@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     tiles = list(WebmercatorTileInfo(zoom=0, x=0, y=0).descendants(max_zoom=8))
 
-    for style in ["light"]:
+    for style in ["dark", "light"]:
         storage_path = f"v1/map/hillshade/{style}"
         dataset = Dataset(f"Glo90/hillshade-{style}.tif")
         ElevationTools.generate_tiles_for_image(

@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     for style in ["light"]:
         dataset = Dataset("Glo90/1k.tif")
-        storage_path = f"v1/map/hillshade/{style}"
+        storage_path = f"v1/map/relief-color/{style}"
         ElevationTools.generate_color_relief_tiles(
             tile_infos=tiles,
             dataset=dataset,
