@@ -1,4 +1,6 @@
+import json
 from typing import Iterable
+from urllib.parse import quote_plus
 from urllib.request import urlopen
 
 from datasets.common.downloadable_dataset import DownloadableDataset
@@ -10,10 +12,19 @@ class SwissAlti3d(DownloadableDataset):
         self.high_res = high_res
 
     def get_urls(self) -> Iterable[str]:
-        tile_list_url_id = "CF5qMzKt" if self.high_res else "VsCRQHfw"
-        url = (
-            f"https://ogd.swisstopo.admin.ch/resources/"
-            f"ch.swisstopo.swissalti3d-{tile_list_url_id}.csv"
+        search_dataset_url = (
+            "https://ogd.swisstopo.admin.ch/services/swiseld/services/assets/"
+            + "ch.swisstopo.swissalti3d/search"
+            + "?format="
+            + quote_plus("image/tiff; application=geotiff; profile=cloud-optimized")
+            + "&resolution="
+            + ("0.5" if self.high_res else "2.0")
+            + "&srid=2056"
+            + "&state=current"
+            + "&csv=true"
         )
-        with urlopen(url) as tile_list:
+        with urlopen(search_dataset_url) as response:
+            dataset_url = json.loads(response.read())["href"]
+
+        with urlopen(dataset_url) as tile_list:
             return [t.decode().strip() for t in tile_list.readlines()]
