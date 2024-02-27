@@ -1,7 +1,6 @@
 import logging
 import os
 from collections import defaultdict
-from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
 from typing import Iterable, Callable, Sequence, Optional
 
@@ -18,7 +17,7 @@ from tiles import TileInfo
 
 class ElevationTools:
     # Set up thread pool
-    num_threads = cpu_count()
+    num_threads = 64
     thread_pool = ThreadPool(num_threads)
 
     # Set environment variables for GDAL
@@ -48,8 +47,6 @@ class ElevationTools:
                 return
 
         os.makedirs(os.path.dirname(target_path), exist_ok=True)
-        min_x, min_y = tile_info.min_coordinate
-        max_x, max_y = tile_info.max_coordinate
         gdal.Warp(
             destNameOrDestDS=target_path,
             srcDSOrSrcDSTab=source.path,
@@ -58,7 +55,7 @@ class ElevationTools:
                 width=resolution,
                 height=resolution,
                 resampleAlg=gdalconst.GRA_CubicSpline,
-                outputBounds=(min_x, min_y, max_x, max_y),
+                outputBounds=tile_info.bounds_min_x_min_y_max_x_max_y,
                 srcNodata=src_nodata,
                 cutlineDSName=cutline,
                 multithread=True,

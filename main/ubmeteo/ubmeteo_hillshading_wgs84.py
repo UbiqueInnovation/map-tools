@@ -1,10 +1,10 @@
 import logging
 from datetime import timedelta
 
-from commons import CompositeTileOutput, BucketTileOutput, R2Client
+from commons import CompositeTileOutput, R2Client, BucketTileOutput
 from datasets import Dataset
 from elevation import ElevationTools
-from tiles import WebmercatorTileInfo
+from tiles import Wgs84TileInfo
 
 if __name__ == "__main__":
     logging.root.setLevel(logging.INFO)
@@ -16,24 +16,33 @@ if __name__ == "__main__":
     cache_control_test = f"max-age={max_age_test}"
     cache_control_prod = f"max-age={max_age_prod}"
 
-    tiles = list(WebmercatorTileInfo(zoom=0, x=0, y=0).descendants(max_zoom=8))
+    style = "light"
+    dataset_to_tiles = {
+        f"Glo90/hillshading/{style}-small.tif": list(
+            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(max_zoom=5)
+        ),
+        f"Glo90/hillshading/{style}.vrt": list(
+            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=10, max_zoom=10)
+        ),
+    }
 
-    for style in ["dark", "light"]:
-        storage_path = f"v1/map/hillshade/{style}"
-        dataset = Dataset(f"Glo90/hillshade-{style}.tif")
+    for dataset_path, tiles in dataset_to_tiles.items():
+        storage_path = f"v1/map/4326/hillshade/{style}"
+        dataset = Dataset(dataset_path)
         ElevationTools.generate_tiles_for_image(
             tile_infos=tiles,
             dataset=dataset,
-            target=dataset.tile_set(f"hillshade-{style}", "png"),
+            src_nodata=150,
+            target=dataset.tile_set(f"{style}-4326", "png"),
             output=CompositeTileOutput(
                 [
                     BucketTileOutput(
-                        bucket=r2.maps_dev,
+                        bucket=r2.ubmeteo_app_dev,
                         base_path=storage_path,
                         cache_control=cache_control_test,
                     ),
                     BucketTileOutput(
-                        bucket=r2.maps_prod,
+                        bucket=r2.ubmeteo_app_prod,
                         base_path=storage_path,
                         cache_control=cache_control_prod,
                     ),

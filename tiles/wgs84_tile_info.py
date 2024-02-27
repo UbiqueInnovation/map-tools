@@ -44,6 +44,11 @@ class Wgs84TileInfo(TileInfo):
         )
 
     @property
+    def bounds_min_x_min_y_max_x_max_y(self) -> tuple[float, float, float, float]:
+        top_left, bottom_right = self.bounds
+        return top_left.lon, bottom_right.lat, bottom_right.lon, top_left.lat
+
+    @property
     def top_left(self) -> Wgs84Coordinate:
         top_left, _ = self.bounds
         return top_left

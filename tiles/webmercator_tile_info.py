@@ -18,12 +18,13 @@ coordinate_system_height = coordinate_system_width
 @dataclass(frozen=True, kw_only=True, unsafe_hash=True, order=True)
 class WebmercatorTileInfo(TileInfo):
     zoom: int
+
     x: int
     y: int
 
     @property
-    def srs(self) -> str:
-        return "EPSG:3857"
+    def srid(self) -> int:
+        return 3857
 
     @property
     def path(self) -> str:
@@ -45,6 +46,11 @@ class WebmercatorTileInfo(TileInfo):
         tile_left = x0 + self.x * tile_width
         tile_top = y0 - self.y * tile_height
         return (tile_left, tile_top), (tile_left + tile_width, tile_top - tile_height)
+
+    @property
+    def bounds_min_x_min_y_max_x_max_y(self) -> tuple[float, float, float, float]:
+        (tile_left, tile_top), (tile_right, tile_bottom) = self.bounds
+        return tile_left, tile_bottom, tile_right, tile_top
 
     @property
     def top_left(self) -> tuple[float, float]:

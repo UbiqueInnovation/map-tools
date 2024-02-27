@@ -9,7 +9,6 @@ from mypy_boto3_s3.service_resource import Bucket
 class R2Client:
     def __init__(self) -> None:
         load_dotenv()  # take environment variables from .env.
-        import multiprocessing
 
         self.client = boto3.resource(
             service_name="s3",
@@ -17,7 +16,7 @@ class R2Client:
             endpoint_url=f'https://{os.environ["R2_ACCOUNT_ID"]}.r2.cloudflarestorage.com',
             aws_access_key_id=os.environ["R2_ACCESS_KEY"],
             aws_secret_access_key=os.environ["R2_SECRET_KEY"],
-            config=Config(max_pool_connections=multiprocessing.cpu_count()),
+            config=Config(max_pool_connections=64),
         )
 
     @property
@@ -27,3 +26,11 @@ class R2Client:
     @property
     def maps_prod(self) -> Bucket:
         return self.client.Bucket("maps-prod")
+
+    @property
+    def ubmeteo_app_dev(self) -> Bucket:
+        return self.client.Bucket("ubmeteo-app-dev")
+
+    @property
+    def ubmeteo_app_prod(self) -> Bucket:
+        return self.client.Bucket("ubmeteo-app-prod")
