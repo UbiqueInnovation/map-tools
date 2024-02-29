@@ -11,7 +11,7 @@ from . import Dataset
 
 class DownloadableDataset(Dataset, ABC):
     def __init__(self, name: str) -> None:
-        super().__init__(f"{name}/data.vrt")
+        super().__init__(f"{name}/source.vrt")
         self.data_path = f"{self.base_path}/data"
 
     @abstractmethod
