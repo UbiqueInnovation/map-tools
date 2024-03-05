@@ -18,11 +18,11 @@ if __name__ == "__main__":
 
     style = "light"
     dataset_to_tiles = {
-        # f"Glo90/hillshading/{style}-small.tif": list(
-        #     WebmercatorTileInfo(zoom=0, x=0, y=0).descendants(max_zoom=5)
-        # ),
+        f"Glo90/hillshading/{style}-small.tif": list(
+            WebmercatorTileInfo(zoom=0, x=0, y=0).descendants(max_zoom=5)
+        ),
         f"Glo90/hillshading/{style}.vrt": list(
-            WebmercatorTileInfo(zoom=1, x=1, y=0).descendants(min_zoom=10, max_zoom=10)
+            WebmercatorTileInfo(zoom=0, x=0, y=0).descendants(min_zoom=6, max_zoom=10)
         ),
     }
 
