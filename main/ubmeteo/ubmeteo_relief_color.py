@@ -16,9 +16,7 @@ if __name__ == "__main__":
     cache_control_test = f"max-age={max_age_test}"
     cache_control_prod = f"max-age={max_age_prod}"
 
-    tiles = list(
-        WebmercatorTileInfo(zoom=0, x=0, y=0).descendants(min_zoom=8, max_zoom=8)
-    )
+    tiles = list(WebmercatorTileInfo(zoom=0, x=0, y=0).descendants(max_zoom=10))
 
     for style in ["light"]:
         dataset = Dataset("Glo90/1k.tif")

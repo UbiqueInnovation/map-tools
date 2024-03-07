@@ -1,4 +1,3 @@
-import multiprocessing
 import os
 
 import boto3 as boto3
@@ -16,7 +15,7 @@ class S3Client:
             region_name="eu-central-1",
             aws_access_key_id=os.environ["METEO_SWISS_ACCESS_KEY"],
             aws_secret_access_key=os.environ["METEO_SWISS_SECRET_KEY"],
-            config=Config(max_pool_connections=multiprocessing.cpu_count()),
+            config=Config(max_pool_connections=64),
         )
 
         self.dwd_test_client = boto3.resource(
@@ -24,7 +23,7 @@ class S3Client:
             region_name="eu-central-1",
             aws_access_key_id=os.environ["DWD_TEST_ACCESS_KEY"],
             aws_secret_access_key=os.environ["DWD_TEST_SECRET_KEY"],
-            config=Config(max_pool_connections=multiprocessing.cpu_count()),
+            config=Config(max_pool_connections=64),
         )
 
         self.dwd_prod_client = boto3.resource(
@@ -32,7 +31,7 @@ class S3Client:
             region_name="eu-central-1",
             aws_access_key_id=os.environ["DWD_PROD_ACCESS_KEY"],
             aws_secret_access_key=os.environ["DWD_PROD_SECRET_KEY"],
-            config=Config(max_pool_connections=multiprocessing.cpu_count()),
+            config=Config(max_pool_connections=64),
         )
 
         self.viadi_dev_client = boto3.resource(
@@ -40,7 +39,7 @@ class S3Client:
             region_name="eu-central-1",
             aws_access_key_id=os.environ["VIADI_DEV_ACCESS_KEY"],
             aws_secret_access_key=os.environ["VIADI_DEV_SECRET_KEY"],
-            config=Config(max_pool_connections=multiprocessing.cpu_count()),
+            config=Config(max_pool_connections=64),
         )
 
         self.viadi_prod_client = boto3.resource(
@@ -48,7 +47,7 @@ class S3Client:
             region_name="eu-central-1",
             aws_access_key_id=os.environ["VIADI_PROD_ACCESS_KEY"],
             aws_secret_access_key=os.environ["VIADI_PROD_SECRET_KEY"],
-            config=Config(max_pool_connections=multiprocessing.cpu_count()),
+            config=Config(max_pool_connections=64),
         )
 
     @property
