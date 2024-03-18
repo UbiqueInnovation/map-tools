@@ -1,6 +1,7 @@
 import logging
 import os
 from datetime import timedelta
+from pathlib import Path
 
 import numpy as np
 import rasterio
@@ -8,13 +9,13 @@ from alive_progress import alive_it
 from osgeo import gdal
 
 from commons import R2Client, CompositeTileOutput, BucketTileOutput
-from datasets import Glo30
+from datasets import Glo90
 from elevation import ElevationTools
 from tiles import Wgs84TileInfo
 
 
 def create_tile(tile: Wgs84TileInfo):
-    dataset = Glo30().resolve("4_8_3.tif")
+    dataset = Glo90().resolve("Glo90.tif")
     warped_path = dataset.resolve("warped/4326/" + tile.path + ".tif").path
     if not os.path.exists(warped_path):
         os.makedirs(os.path.dirname(warped_path), exist_ok=True)
@@ -26,7 +27,8 @@ def create_tile(tile: Wgs84TileInfo):
             ),
         )
 
-    png_path = warped_path.replace(".tif", ".png")
+    png_path = dataset.resolve("elevation/4326/" + tile.path + ".png").path
+    Path(png_path).parent.mkdir(parents=True, exist_ok=True)
 
     if not os.path.exists(png_path):
         with rasterio.open(warped_path) as src:
@@ -55,6 +57,9 @@ def create_tile(tile: Wgs84TileInfo):
 
         output.upload(png_path, tile)
 
+    os.remove(png_path)
+    os.remove(warped_path)
+
 
 if __name__ == "__main__":
     logging.root.setLevel(logging.INFO)
@@ -81,8 +86,8 @@ if __name__ == "__main__":
         ]
     )
 
-    target_zoom = 11
-    base_tile = Wgs84TileInfo(zoom=4, x=8, y=3)
+    target_zoom = 10
+    base_tile = Wgs84TileInfo(zoom=0, x=0, y=0)
     tiles = list(base_tile.descendants(target_zoom, target_zoom))
     print(f"Generating at level {target_zoom} within bounds {base_tile.bounds}")
 
