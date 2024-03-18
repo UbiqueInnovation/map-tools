@@ -29,7 +29,7 @@ if __name__ == "__main__":
     )
 
     for style in ["light", "dark"]:
-        storage_path = f"v1/map/europe/hillshade/{style}"
+        storage_path = f"map/v1/europe/hillshade/{style}"
         dataset = Dataset(f"DWD/europe-{style}.tif")
         ElevationTools.generate_tiles_for_image(
             tile_infos=tiles_europe,

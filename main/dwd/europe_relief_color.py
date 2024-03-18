@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     for style in ["light", "dark"]:
         dataset = Dataset("DWD/europe.tif")
-        storage_path_color_relief_europe = f"v1/map/europe/color-relief/{style}"
+        storage_path_color_relief_europe = f"map/v1/europe/color-relief/{style}"
         ElevationTools.generate_color_relief_tiles(
             tile_infos=tiles_europe,
             dataset=dataset,

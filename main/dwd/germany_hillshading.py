@@ -23,7 +23,7 @@ if __name__ == "__main__":
     ]
     for tiles, cutline in tiles_and_cutline:
         for style in ["light", "dark"]:
-            storage_path_hillshade = f"v1/map/germany/hillshade/{style}"
+            storage_path_hillshade = f"map/v1/germany/hillshade/{style}"
             dataset = Dataset(f"DWD/germany-{style}.tif")
             ElevationTools.generate_tiles_for_image(
                 tile_infos=tiles,
