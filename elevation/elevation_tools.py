@@ -187,6 +187,9 @@ class ElevationTools:
             if output:
                 output.upload(target_path, tile_info)
 
+            os.remove(target_path)
+            os.remove(warped_tile_path)
+
         return ElevationTools.apply_for_all_tile_infos(
             tile_infos, generate_color_relief_tile
         )
