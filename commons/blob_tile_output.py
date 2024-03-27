@@ -1,4 +1,5 @@
 import logging
+import os
 
 from azure.storage.blob import ContainerClient, ContentSettings
 
@@ -20,6 +21,9 @@ class BlobTileOutput(TileOutput):
         logging.getLogger("azure.core").setLevel(logging.WARN)
 
     def upload(self, file_path: str, tile_info: TileInfo) -> None:
+        if os.stat(file_path).st_size == 0:
+            logging.warning(f"File {file_path} is empty")
+
         with open(file_path, "rb") as file:
             self.container_client.upload_blob(
                 name=f"{self.base_path}/{tile_info.path}.png",

@@ -1,3 +1,5 @@
+import logging
+import os
 from typing import Optional
 
 from mypy_boto3_s3.service_resource import Bucket
@@ -24,6 +26,9 @@ class BucketTileOutput(TileOutput):
         self.content_encoding = content_encoding
 
     def upload(self, file_path: str, tile_info: TileInfo) -> None:
+        if os.stat(file_path).st_size == 0:
+            logging.warning(f"File {file_path} is empty")
+
         extra_args = {
             "ACL": self.acl,
             "CacheControl": self.cache_control,
