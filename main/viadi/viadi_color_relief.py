@@ -1,8 +1,6 @@
 import logging
 from datetime import timedelta
 
-from osgeo import gdal
-
 from commons import CompositeTileOutput, BucketTileOutput, S3Client
 from datasets import SwissAlti3d
 from elevation import ElevationTools
@@ -23,7 +21,7 @@ if __name__ == "__main__":
     storage_path_color_relief = "map/color-relief"
     ElevationTools.generate_color_relief_tiles(
         dataset=SwissAlti3d().resolve("5m.cut.tif"),
-        color_filename="../elevation/relief-colors/light",
+        color_filename="../../elevation/relief-colors/light",
         tile_infos=tiles,
         output=CompositeTileOutput(
             [
@@ -35,27 +33,6 @@ if __name__ == "__main__":
                 BucketTileOutput(
                     bucket=s3.viadi_prod,
                     base_path=storage_path_color_relief,
-                    cache_control=cache_control_prod,
-                ),
-            ]
-        ),
-    )
-
-    storage_path_hillshade = "map/hillshade/light"
-    ElevationTools.generate_hillshade_tiles(
-        dataset=SwissAlti3d().resolve("5m.cut.tif"),
-        tile_infos=tiles,
-        options=gdal.DEMProcessingOptions(zFactor=1.7, computeEdges=True, igor=True),
-        output=CompositeTileOutput(
-            [
-                BucketTileOutput(
-                    bucket=s3.viadi_dev,
-                    base_path=storage_path_hillshade,
-                    cache_control=cache_control_dev,
-                ),
-                BucketTileOutput(
-                    bucket=s3.viadi_prod,
-                    base_path=storage_path_hillshade,
                     cache_control=cache_control_prod,
                 ),
             ]
