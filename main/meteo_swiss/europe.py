@@ -1,10 +1,8 @@
 import logging
 from datetime import timedelta
 
-from osgeo import gdal
-
 from commons import CompositeTileOutput, BucketTileOutput, S3Client
-from datasets import SwissAlti3d, Dataset
+from datasets import Dataset
 from elevation import ElevationTools
 from tiles import WebmercatorTileInfo
 
@@ -18,33 +16,9 @@ if __name__ == "__main__":
     cache_control_test = f"max-age={max_age_test}"
     cache_control_prod = f"max-age={max_age_prod}"
 
-    tiles_switzerland = list(
-        WebmercatorTileInfo(zoom=6, x=33, y=22).overlapping(max_zoom=12)
-    )
-    storage_path_switzerland = "v1/map/hillshade/switzerland/light"
-    ElevationTools.generate_hillshade_tiles(
-        dataset=SwissAlti3d().resolve("5m.cut.tif"),
-        tile_infos=tiles_switzerland,
-        options=gdal.DEMProcessingOptions(zFactor=1.7, computeEdges=True, igor=True),
-        output=CompositeTileOutput(
-            [
-                BucketTileOutput(
-                    bucket=s3.meteo_swiss_test,
-                    base_path=storage_path_switzerland,
-                    cache_control=cache_control_test,
-                ),
-                BucketTileOutput(
-                    bucket=s3.meteo_swiss_prod,
-                    base_path=storage_path_switzerland,
-                    cache_control=cache_control_prod,
-                ),
-            ]
-        ),
-    )
-
     tiles_europe = list(WebmercatorTileInfo(zoom=4, x=8, y=5).overlapping(max_zoom=10))
     for style in ["light", "dark"]:
-        storage_path_europe = f"v1/map/hillshade/europe/{style}"
+        storage_path_europe = f"map/hillshade/europe/{style}"
         dataset = Dataset(f"MeteoSwiss/europe-{style}.tif")
         ElevationTools.generate_tiles_for_image(
             tile_infos=tiles_europe,
