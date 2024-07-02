@@ -24,6 +24,7 @@ def create_tile(tile: Wgs84TileInfo):
             srcDSOrSrcDSTab=dataset.path,
             options=gdal.WarpOptions(
                 outputBounds=tile.bounds_min_x_min_y_max_x_max_y,
+                dstNodata=0,
             ),
         )
 
