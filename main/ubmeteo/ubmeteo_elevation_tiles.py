@@ -8,7 +8,7 @@ import rasterio
 from alive_progress import alive_it
 from osgeo import gdal
 
-from commons import R2Client, CompositeTileOutput, BucketTileOutput
+from commons import R2Client, CompositeTileOutput, BucketTileOutput, S3Client
 from datasets import Glo90
 from elevation import ElevationTools
 from tiles import Wgs84TileInfo
@@ -66,16 +66,17 @@ if __name__ == "__main__":
     logging.root.setLevel(logging.INFO)
 
     r2 = R2Client()
+    s3 = S3Client()
 
     max_age_test = int(timedelta(days=1).total_seconds())
-    max_age_prod = int(timedelta(days=7).total_seconds())
+    max_age_prod = int(timedelta(days=180).total_seconds())
     cache_control_test = f"max-age={max_age_test}"
     cache_control_prod = f"max-age={max_age_prod}"
     storage_path = "v1/map/4326/elevation"
     output = CompositeTileOutput(
         [
             BucketTileOutput(
-                bucket=r2.ubmeteo_app_dev,
+                bucket=s3.fluid_app_dev,
                 base_path=storage_path,
                 cache_control=cache_control_test,
             ),
