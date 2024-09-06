@@ -42,6 +42,14 @@ class S3Client:
             config=Config(max_pool_connections=64),
         )
 
+        self.fluid_prod_client = boto3.resource(
+            service_name="s3",
+            region_name="eu-central-1",
+            aws_access_key_id=os.environ["FLUID_PROD_ACCESS_KEY"],
+            aws_secret_access_key=os.environ["FLUID_PROD_SECRET_KEY"],
+            config=Config(max_pool_connections=64),
+        )
+
         self.viadi_dev_client = boto3.resource(
             service_name="s3",
             region_name="eu-central-1",
@@ -85,6 +93,10 @@ class S3Client:
     @property
     def fluid_app_dev(self) -> Bucket:
         return self.fluid_dev_client.Bucket("fluidmeteo-app-dev")
+
+    @property
+    def fluid_app_prod(self) -> Bucket:
+        return self.fluid_prod_client.Bucket("fluidmeteo-app-prod")
 
     @property
     def viadi_dev(self) -> Bucket:
