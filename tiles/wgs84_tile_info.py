@@ -131,7 +131,13 @@ class Wgs84TileInfo(TileInfo):
 
         return filter(
             is_within_bounds,
-            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(
-                min_zoom=min_zoom, max_zoom=max_zoom
-            ),
+            Wgs84TileInfo.all_tiles(min_zoom=min_zoom, max_zoom=max_zoom),
         )
+
+    @staticmethod
+    def root() -> Wgs84TileInfo:
+        return Wgs84TileInfo(zoom=0, x=0, y=0)
+
+    @staticmethod
+    def all_tiles(min_zoom: int = 0, max_zoom: int = 10) -> Iterable[Wgs84TileInfo]:
+        return Wgs84TileInfo.root().descendants(min_zoom=min_zoom, max_zoom=max_zoom)

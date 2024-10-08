@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageChops, ImageEnhance
 from alive_progress import alive_it
-from osgeo import gdal, gdalconst
+from osgeo import gdal
 
 from commons import TileOutput
 from datasets import Dataset, TileSet
@@ -32,10 +32,14 @@ class ElevationTools:
         tile_info: TileInfo,
         source: Dataset,
         target_path: str,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
         resolution: int = 512,
         overwrite_existing: bool = False,
         src_nodata: Optional[float] = None,
         cutline: Optional[str] = None,
+        resample_alg: Optional[str] = None,
+        creation_options: Optional[dict] = None,
     ) -> None:
         logging.debug(f"Cut and warp for tile {tile_info}")
 
@@ -52,13 +56,14 @@ class ElevationTools:
             srcDSOrSrcDSTab=source.path,
             options=gdal.WarpOptions(
                 dstSRS=tile_info.srs,
-                width=resolution,
-                height=resolution,
-                resampleAlg=gdalconst.GRA_CubicSpline,
+                width=width or resolution,
+                height=height or resolution,
+                resampleAlg=resample_alg or "bilinear",
                 outputBounds=tile_info.bounds_min_x_min_y_max_x_max_y,
                 srcNodata=src_nodata,
                 cutlineDSName=cutline,
                 multithread=True,
+                creationOptions=creation_options,
             ),
         )
         logging.debug(f"Warped tile {tile_info}.")
@@ -202,6 +207,11 @@ class ElevationTools:
         output: TileOutput = None,
         src_nodata: Optional[float] = None,
         cutline: Optional[str] = None,
+        remove_after_upload: bool = True,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        resample_alg: Optional[str] = None,
+        creation_options: Optional[dict] = None,
     ) -> None:
         def generate_tile_for_image(tile_info: TileInfo):
             target_path = target.tile_path(tile_info)
@@ -213,13 +223,20 @@ class ElevationTools:
                 overwrite_existing=True,
                 src_nodata=src_nodata,
                 cutline=cutline,
+                height=height,
+                width=width,
+                resample_alg=resample_alg,
+                creation_options=creation_options,
             )
-            ElevationTools.image_to_rgb(target_path)
+
+            if target.file_extension == "png":
+                ElevationTools.image_to_rgb(target_path)
 
             if output:
                 output.upload(target_path, tile_info)
 
-            os.remove(target_path)
+            if remove_after_upload:
+                os.remove(target_path)
 
         return ElevationTools.apply_for_all_tile_infos(
             tile_infos, generate_tile_for_image

@@ -12,7 +12,10 @@ from . import BlueMarbleTile
 class BlueMarble(DownloadableDataset):
     base_url = "https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73801"
     date = "200409"
-    resolution = "3x21600x21600"
+    source_tile_size = 21_600
+    source_width = 4 * source_tile_size
+    source_height = 2 * source_tile_size
+    resolution = f"3x{source_tile_size}x{source_tile_size}"
 
     def __init__(self, layer: str = "world.topo.bathy") -> None:
         super().__init__(f"BlueMarble/{layer}")
