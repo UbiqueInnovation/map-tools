@@ -11,3 +11,11 @@ class Wgs84Coordinate:
     @staticmethod
     def srs() -> str:
         return "EPSG:4326"
+
+    @property
+    def x(self) -> float:
+        return self.lon
+
+    @property
+    def y(self) -> float:
+        return self.lat
