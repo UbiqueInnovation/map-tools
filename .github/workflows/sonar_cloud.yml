@@ -7,15 +7,13 @@ jobs:
   sonarcloud:
     name: Sonar Cloud Analysis
     runs-on: ubuntu-latest
-    container: ghcr.io/osgeo/gdal:ubuntu-small-latest
+    container: ghcr.io/osgeo/gdal:ubuntu-normal-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Install dependencies
         run: |
-          apt -y update
-          apt install -y --no-install-recommends --fix-missing python3-pip
           pip install -r requirements.txt --break-system-packages
       - name: Run Tests
         run: |
