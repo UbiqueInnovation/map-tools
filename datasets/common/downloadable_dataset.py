@@ -27,6 +27,8 @@ class DownloadableDataset(Dataset, ABC):
         if os.path.exists(self.path):
             return
 
+    def create_vrt(self) -> None:
+        path = self.data_path
         logging.info("Creating virtual data set")
         files = [f"{path}/{file}" for file in os.listdir(path) if file.endswith(".tif")]
         gdal.BuildVRT(

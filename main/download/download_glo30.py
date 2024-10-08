@@ -1,9 +1,10 @@
 import logging
 
-from datasets import Glo90
+from datasets import Glo30
 
 if __name__ == "__main__":
     logging.root.setLevel(logging.INFO)
 
-    dataset = Glo90()
+    dataset = Glo30()
     dataset.download()
+    dataset.create_vrt()

@@ -8,3 +8,4 @@ if __name__ == "__main__":
     for high_res in [False, True]:
         dataset = SwissAlti3d(high_res=high_res)
         dataset.download()
+        dataset.create_vrt()
