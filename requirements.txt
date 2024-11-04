@@ -4,11 +4,11 @@ gdal==3.9.3
 rasterio==1.4.2
 rio-rgbify==0.4.0
 requests==2.32.3
-alive-progress==3.1.5
+alive-progress==3.2.0
 coverage==7.6.4
 boto3==1.35.54
 boto3-stubs[s3]==1.35.54
-azure-identity==1.18.0
+azure-identity==1.19.0
 azure-storage-blob==12.23.1
 python-dotenv==1.0.1
 pillow==10.4.0
