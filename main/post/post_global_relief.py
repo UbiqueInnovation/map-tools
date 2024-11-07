@@ -1,7 +1,9 @@
+import json
 import logging
 from datetime import timedelta
+from io import BytesIO
 
-from commons import CompositeTileOutput, BucketTileOutput, R2Client
+from commons import CompositeTileOutput, BucketTileOutput, R2Client, BucketOutput
 from datasets import Dataset
 from elevation import ElevationTools
 from tiles import Wgs84TileInfo
@@ -18,7 +20,7 @@ if __name__ == "__main__":
 
     style = "light"
     max_zoom = 9
-    source_width, source_height = 4322_000, 210_000
+    source_width, source_height = 432_000, 210_000
     tile_width = round(source_width / 2**max_zoom)
     tile_height = round(source_height / 2**max_zoom)
 
@@ -30,6 +32,26 @@ if __name__ == "__main__":
             Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=6, max_zoom=max_zoom)
         ),
     }
+
+    with BytesIO() as file:
+        tile_json = dict(
+            tilejson="3.0.0",
+            name="global-relief",
+            version="1.0.0",
+            format="jpeg",
+            tiles=[
+                "https://post-playground-dev.openmobilemaps.io/v1/background/global-relief/4326/{z}/{x}/{y}.jpg"
+            ],
+            minzoom=0,
+            maxzoom=max_zoom,
+        )
+        file.write(json.dumps(tile_json).encode("UTF-8"))
+        file.flush()
+        file.seek(0)
+        BucketOutput(
+            bucket=r2.post_playground,
+            cache_control=cache_control_test,
+        ).upload(file, f"v1/background/global-relief/{style}/tiles.json")
 
     for dataset_path, tiles in dataset_to_tiles.items():
         storage_path = f"v1/background/global-relief/{style}/4326"
