@@ -232,6 +232,9 @@ class ElevationTools:
             if target.file_extension == "png":
                 ElevationTools.image_to_rgb(target_path)
 
+            if target.file_extension in ["jpg", "jpeg"]:
+                Image.open(target_path).convert("RGB").save(target_path)
+
             if output:
                 output.upload(target_path, tile_info)
 
