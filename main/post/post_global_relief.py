@@ -40,7 +40,7 @@ if __name__ == "__main__":
             version="1.0.0",
             format="jpeg",
             tiles=[
-                "https://post-playground-dev.openmobilemaps.io/v1/background/global-relief/4326/{z}/{x}/{y}.jpg"
+                "https://post-playground-dev.openmobilemaps.io/v1/background/global-relief/light/4326/{z}/{x}/{y}.jpg"
             ],
             minzoom=0,
             maxzoom=max_zoom,
