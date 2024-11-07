@@ -17,12 +17,17 @@ if __name__ == "__main__":
     cache_control_prod = f"max-age={max_age_prod}"
 
     style = "light"
+    max_zoom = 9
+    source_width, source_height = 4322_000, 210_000
+    tile_width = round(source_width / 2**max_zoom)
+    tile_height = round(source_height / 2**max_zoom)
+
     dataset_to_tiles = {
         f"Glo90/hillshading/{style}-small.tif": list(
-            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(max_zoom=3)
+            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(max_zoom=5)
         ),
         f"Glo90/hillshading/{style}.vrt": list(
-            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=4, max_zoom=10)
+            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=6, max_zoom=max_zoom)
         ),
     }
 
@@ -32,8 +37,12 @@ if __name__ == "__main__":
         ElevationTools.generate_tiles_for_image(
             tile_infos=tiles,
             dataset=dataset,
+            width=tile_width,
+            height=tile_height,
             src_nodata=150,
-            target=dataset.tile_set(f"{style}-4326", "png"),
+            target=dataset.tile_set(f"{style}-4326", "jpg"),
+            creation_options=dict(QUALITY=90),
+            resample_alg="bilinear",
             output=CompositeTileOutput(
                 [
                     BucketTileOutput(
