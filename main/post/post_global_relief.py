@@ -49,6 +49,7 @@ if __name__ == "__main__":
                         bucket=r2.post_playground,
                         base_path=storage_path,
                         cache_control=cache_control_test,
+                        file_ending="jpg",
                     )
                 ]
             ),
