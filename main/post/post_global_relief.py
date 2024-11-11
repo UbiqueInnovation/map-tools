@@ -28,8 +28,11 @@ if __name__ == "__main__":
         f"Glo90/hillshading/{style}-small.tif": list(
             Wgs84TileInfo(zoom=0, x=0, y=0).descendants(max_zoom=5)
         ),
+        f"Glo90/hillshading/{style}-medium.tif": list(
+            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=6, max_zoom=8)
+        ),
         f"Glo90/hillshading/{style}.vrt": list(
-            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=6, max_zoom=max_zoom)
+            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=9, max_zoom=max_zoom)
         ),
     }
 

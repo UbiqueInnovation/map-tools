@@ -1,6 +1,7 @@
 import logging
 import os
 from collections import defaultdict
+from multiprocessing import cpu_count
 from multiprocessing.pool import ThreadPool
 from typing import Iterable, Callable, Sequence, Optional
 
@@ -17,7 +18,7 @@ from tiles import TileInfo
 
 class ElevationTools:
     # Set up thread pool
-    num_threads = 64
+    num_threads = cpu_count()
     thread_pool = ThreadPool(num_threads)
 
     # Set environment variables for GDAL
