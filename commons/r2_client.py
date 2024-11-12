@@ -38,3 +38,7 @@ class R2Client:
     @property
     def post_playground(self) -> Bucket:
         return self.client.Bucket("post-playground")
+
+    @property
+    def post_playground_int(self) -> Bucket:
+        return self.client.Bucket("post-playground-int")

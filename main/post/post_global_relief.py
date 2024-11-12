@@ -36,25 +36,26 @@ if __name__ == "__main__":
         ),
     }
 
-    with BytesIO() as file:
-        tile_json = dict(
-            tilejson="3.0.0",
-            name="global-relief",
-            version="1.0.0",
-            format="jpeg",
-            tiles=[
-                "https://post-playground-dev.openmobilemaps.io/v1/background/global-relief/light/4326/{z}/{x}/{y}.jpg"
-            ],
-            minzoom=0,
-            maxzoom=max_zoom,
-        )
-        file.write(json.dumps(tile_json).encode("UTF-8"))
-        file.flush()
-        file.seek(0)
-        BucketOutput(
-            bucket=r2.post_playground,
-            cache_control=cache_control_test,
-        ).upload(file, f"v1/background/global-relief/{style}/tiles.json")
+    for bucket in [r2.post_playground, r2.post_playground_int]:
+        with BytesIO() as file:
+            tile_json = dict(
+                tilejson="3.0.0",
+                name="global-relief",
+                version="1.0.0",
+                format="jpeg",
+                tiles=[
+                    "https://post-playground-dev.openmobilemaps.io/v1/background/global-relief/light/4326/{z}/{x}/{y}.jpg"
+                ],
+                minzoom=0,
+                maxzoom=max_zoom,
+            )
+            file.write(json.dumps(tile_json).encode("UTF-8"))
+            file.flush()
+            file.seek(0)
+            BucketOutput(
+                bucket=bucket,
+                cache_control=cache_control_test,
+            ).upload(file, f"v1/background/global-relief/{style}/tiles.json")
 
     for dataset_path, tiles in dataset_to_tiles.items():
         storage_path = f"v1/background/global-relief/{style}/4326"
@@ -74,6 +75,12 @@ if __name__ == "__main__":
                         bucket=r2.post_playground,
                         base_path=storage_path,
                         cache_control=cache_control_test,
+                        file_ending="jpg",
+                    ),
+                    BucketTileOutput(
+                        bucket=r2.post_playground_int,
+                        base_path=storage_path,
+                        cache_control=cache_control_prod,
                         file_ending="jpg",
                     )
                 ]
