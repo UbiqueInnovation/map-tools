@@ -16,7 +16,7 @@ if __name__ == "__main__":
     cache_control_prod = f"max-age={max_age_prod}"
 
     style = "light"
-    max_zoom = 9
+    max_zoom = 10
 
     for bucket in [r2.post_playground, r2.post_playground_int]:
         with BytesIO() as file:
