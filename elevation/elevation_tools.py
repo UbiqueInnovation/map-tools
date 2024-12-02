@@ -57,8 +57,8 @@ class ElevationTools:
             srcDSOrSrcDSTab=source.path,
             options=gdal.WarpOptions(
                 dstSRS=tile_info.srs,
-                width=width or resolution,
-                height=height or resolution,
+                width=width if width is not None else resolution,
+                height=height if height is not None else resolution,
                 resampleAlg=resample_alg or "bilinear",
                 outputBounds=tile_info.bounds_min_x_min_y_max_x_max_y,
                 srcNodata=src_nodata,
