@@ -43,6 +43,7 @@ if __name__ == "__main__":
                 name="global-relief",
                 version="1.0.0",
                 format="jpeg",
+                metadata=dict(crs="EPSG:4326"),
                 tiles=[
                     "https://post-playground-dev.openmobilemaps.io/v1/background/global-relief/light/4326/{z}/{x}/{y}.jpg"
                 ],
@@ -82,7 +83,7 @@ if __name__ == "__main__":
                         base_path=storage_path,
                         cache_control=cache_control_prod,
                         file_ending="jpg",
-                    )
+                    ),
                 ]
             ),
         )
