@@ -23,14 +23,14 @@ if __name__ == "__main__":
     tile_height = round(source_height / 2**max_zoom)
 
     dataset_to_tiles = {
-        f"Glo90/hillshading/{style}-small.tif": list(
-            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(max_zoom=5)
+        f"Post/post-90-{style}-small.tif": list(
+            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(max_zoom=4)
         ),
-        f"Glo90/hillshading/{style}-medium.tif": list(
-            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=6, max_zoom=8)
+        f"Post/post-90-{style}-medium.tif": list(
+            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=5, max_zoom=6)
         ),
-        f"Glo90/hillshading/{style}.vrt": list(
-            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=9, max_zoom=max_zoom)
+        f"Post/post-90-{style}.tif": list(
+            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=7, max_zoom=max_zoom)
         ),
     }
 
