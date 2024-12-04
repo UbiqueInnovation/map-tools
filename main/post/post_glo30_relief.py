@@ -30,7 +30,7 @@ if __name__ == "__main__":
         )
     )
 
-    dataset = Dataset(f"Glo30/hillshading/glo30-continental-europe-{style}.tif")
+    dataset = Dataset(f"Post/post-30-{style}.tif")
 
     storage_path = f"v1/background/global-relief/{style}/4326"
     ElevationTools.generate_tiles_for_image(
