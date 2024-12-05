@@ -87,7 +87,9 @@ class WebmercatorTileInfo(TileInfo):
     def parent(self) -> WebmercatorTileInfo:
         return WebmercatorTileInfo(zoom=self.zoom - 1, x=self.x // 2, y=self.y // 2)
 
-    def descendants(self, max_zoom: int, min_zoom: int = 0) -> Iterable[TileInfo]:
+    def descendants(
+        self, max_zoom: int, min_zoom: int = 0
+    ) -> Iterable[WebmercatorTileInfo]:
         if self.zoom > max_zoom:
             return []
 
@@ -136,4 +138,16 @@ class WebmercatorTileInfo(TileInfo):
             WebmercatorTileInfo(zoom=0, x=0, y=0).descendants(
                 min_zoom=min_zoom, max_zoom=max_zoom
             ),
+        )
+
+    @staticmethod
+    def root() -> WebmercatorTileInfo:
+        return WebmercatorTileInfo(zoom=0, x=0, y=0)
+
+    @staticmethod
+    def all_tiles(
+        min_zoom: int = 0, max_zoom: int = 10
+    ) -> Iterable[WebmercatorTileInfo]:
+        return WebmercatorTileInfo.root().descendants(
+            min_zoom=min_zoom, max_zoom=max_zoom
         )
