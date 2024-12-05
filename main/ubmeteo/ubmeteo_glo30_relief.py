@@ -30,7 +30,7 @@ if __name__ == "__main__":
         )
     )
 
-    dataset = Dataset(f"Fluid/post-30-{style}.tif")
+    dataset = Dataset(f"Fluid/glo30-{style}.tif")
 
     storage_path = f"v1/map/4326/hillshade/{style}"
     ElevationTools.generate_tiles_for_image(
