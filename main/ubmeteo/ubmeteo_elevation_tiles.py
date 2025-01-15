@@ -2,6 +2,7 @@ import logging
 import os
 from datetime import timedelta
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import rasterio
@@ -14,7 +15,9 @@ from elevation import ElevationTools
 from tiles import Wgs84TileInfo
 
 
-def create_tile(tile: Wgs84TileInfo):
+def create_tile(
+    tile: Wgs84TileInfo, width: Optional[int] = None, height: Optional[int] = None
+):
     dataset = Glo90().resolve("Glo90.tif")
     warped_path = dataset.resolve("warped/4326/" + tile.path + ".tif").path
     if not os.path.exists(warped_path):
@@ -25,6 +28,9 @@ def create_tile(tile: Wgs84TileInfo):
             options=gdal.WarpOptions(
                 outputBounds=tile.bounds_min_x_min_y_max_x_max_y,
                 dstNodata=0,
+                width=width,
+                height=height,
+                resampleAlg="bilinear",
             ),
         )
 
@@ -62,6 +68,10 @@ def create_tile(tile: Wgs84TileInfo):
     os.remove(warped_path)
 
 
+def create_downscaled_tile(tile: Wgs84TileInfo):
+    create_tile(tile, width=512, height=256)
+
+
 if __name__ == "__main__":
     logging.root.setLevel(logging.INFO)
 
@@ -87,12 +97,14 @@ if __name__ == "__main__":
         ]
     )
 
-    target_zoom = 10
-    base_tile = Wgs84TileInfo(zoom=0, x=0, y=0)
-    tiles = list(base_tile.descendants(target_zoom, target_zoom))
-    print(f"Generating at level {target_zoom} within bounds {base_tile.bounds}")
-
     gdal.UseExceptions()
+    base_tile = Wgs84TileInfo(zoom=0, x=0, y=0)
 
-    apply_function = ElevationTools.thread_pool.imap_unordered(create_tile, tiles)
-    list(alive_it(apply_function, total=len(tiles)))
+    for target_zoom in range(0, 11):
+        tiles = list(base_tile.descendants(target_zoom, target_zoom))
+        print(f"Generating at level {target_zoom} within bounds {base_tile.bounds}")
+
+        apply_function = ElevationTools.thread_pool.imap_unordered(
+            create_tile if target_zoom == 10 else create_downscaled_tile, tiles
+        )
+        list(alive_it(apply_function, total=len(tiles)))
