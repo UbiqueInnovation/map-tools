@@ -2,7 +2,6 @@ import logging
 import os
 from datetime import timedelta
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import rasterio
@@ -16,9 +15,9 @@ from tiles import Wgs84TileInfo
 
 
 def create_tile(
-    tile: Wgs84TileInfo, width: Optional[int] = None, height: Optional[int] = None
+    tile: Wgs84TileInfo, width: int = 0, height: int = 0
 ):
-    dataset = Glo90().resolve("Glo90.tif")
+    dataset = Glo90().resolve("glo90.tif")
     warped_path = dataset.resolve("warped/4326/" + tile.path + ".tif").path
     if not os.path.exists(warped_path):
         os.makedirs(os.path.dirname(warped_path), exist_ok=True)
