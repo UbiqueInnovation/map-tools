@@ -19,18 +19,16 @@ if __name__ == "__main__":
     style = "light"
     max_zoom = 9
     source_width, source_height = 432_000, 210_000
-    tile_width = round(source_width / 2**max_zoom)
-    tile_height = round(source_height / 2**max_zoom)
+    tile_width = round(source_width / 2 ** max_zoom)
+    tile_height = round(source_height / 2 ** max_zoom)
 
+    logging.info(f"Creating tiles of size {tile_width}x{tile_height}")
     dataset_to_tiles = {
-        f"Fluid/glo90-{style}-small.tif": list(
+        f"Fluid/glo90-{style}-medium.tif": list(
             Wgs84TileInfo(zoom=0, x=0, y=0).descendants(max_zoom=4)
         ),
-        f"Fluid/glo90-{style}-medium.tif": list(
-            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=5, max_zoom=6)
-        ),
         f"Fluid/glo90-{style}.tif": list(
-            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=7, max_zoom=max_zoom)
+            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=5, max_zoom=max_zoom)
         ),
     }
 
@@ -42,7 +40,7 @@ if __name__ == "__main__":
             dataset=dataset,
             src_nodata=150,
             target=dataset.tile_set(f"{style}-4326", "png"),
-            resample_alg="bilinear",
+            resample_alg="lanczos",
             width=tile_width,
             height=tile_height,
             output=CompositeTileOutput(
