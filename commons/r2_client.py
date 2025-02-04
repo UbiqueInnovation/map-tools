@@ -36,9 +36,13 @@ class R2Client:
         return self.client.Bucket("ubmeteo-app-prod")
 
     @property
-    def post_playground(self) -> Bucket:
-        return self.client.Bucket("post-playground")
+    def post_playground_dev(self) -> Bucket:
+        return self.client.Bucket("post-playground-dev")
 
     @property
     def post_playground_int(self) -> Bucket:
         return self.client.Bucket("post-playground-int")
+
+    @property
+    def post_playground_prod(self) -> Bucket:
+        return self.client.Bucket("post-playground-prod")

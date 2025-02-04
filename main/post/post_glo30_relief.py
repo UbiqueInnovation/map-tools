@@ -46,13 +46,19 @@ if __name__ == "__main__":
         output=CompositeTileOutput(
             [
                 BucketTileOutput(
-                    bucket=r2.post_playground,
+                    bucket=r2.post_playground_dev,
                     base_path=storage_path,
                     cache_control=cache_control_test,
                     file_ending="jpg",
                 ),
                 BucketTileOutput(
                     bucket=r2.post_playground_int,
+                    base_path=storage_path,
+                    cache_control=cache_control_prod,
+                    file_ending="jpg",
+                ),
+                BucketTileOutput(
+                    bucket=r2.post_playground_prod,
                     base_path=storage_path,
                     cache_control=cache_control_prod,
                     file_ending="jpg",

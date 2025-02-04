@@ -18,7 +18,11 @@ if __name__ == "__main__":
     style = "light"
     max_zoom = 10
 
-    for bucket in [r2.post_playground, r2.post_playground_int]:
+    for env, bucket in [
+        ("dev", r2.post_playground_dev),
+        ("int", r2.post_playground_int),
+        ("prod", r2.post_playground_prod),
+    ]:
         with BytesIO() as file:
             tile_json = dict(
                 tilejson="3.0.0",
@@ -27,7 +31,7 @@ if __name__ == "__main__":
                 format="jpeg",
                 metadata=dict(crs="EPSG:4326"),
                 tiles=[
-                    "https://post-playground-dev.openmobilemaps.io/v1/background/global-relief/light/4326/{z}/{x}/{y}.jpg"
+                    f"https://post-playground-{env}.openmobilemaps.io/v1/background/global-relief/light/4326/{{z}}/{{x}}/{{y}}.jpg"
                 ],
                 minzoom=0,
                 maxzoom=max_zoom,
