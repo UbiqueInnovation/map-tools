@@ -17,7 +17,7 @@ jobs:
         run: |
           apt -y update
           apt --reinstall install -y --no-install-recommends libc-bin
-          apt install -y --no-install-recommends --fix-missing python3-venv python3-dev g++ gcc make
+          apt install -y --no-install-recommends --fix-missing python3-venv python3-dev g++ gcc make git
           python -m venv venv
           venv/bin/python -m ensurepip --upgrade
           venv/bin/python -m pip install -r requirements.txt
