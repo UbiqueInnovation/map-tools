@@ -1,6 +1,6 @@
 numpy==2.3.5
 opencv-python==4.12.0.88
-gdal==3.12.0
+gdal==3.12.1
 rasterio==1.4.4
 rio-rgbify==0.4.0
 requests==2.32.5
