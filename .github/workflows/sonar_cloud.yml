@@ -19,12 +19,12 @@ jobs:
           apt --reinstall install -y --no-install-recommends libc-bin
           apt install -y --no-install-recommends --fix-missing python3-venv python3-dev g++ gcc make
           python -m venv venv
-          source venv/bin/activate
-          python -m ensurepip --upgrade
-          python -m pip install -r requirements.txt
+          venv/bin/python -m ensurepip --upgrade
+          venv/bin/python -m pip install -r requirements.txt
       - name: Run Tests
         run: |
-          coverage run -m unittest discover && coverage xml -i
+          venv/bin/python -m coverage run -m unittest discover
+          venv/bin/python -m coverage xml -i
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
