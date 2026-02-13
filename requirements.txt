@@ -1,5 +1,5 @@
 numpy==2.3.5
-opencv-python==4.12.0.88
+opencv-python==4.13.0.92
 gdal==3.12.1
 rasterio==1.4.4
 rio-rgbify==0.4.0
