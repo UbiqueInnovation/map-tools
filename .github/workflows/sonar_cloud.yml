@@ -26,7 +26,7 @@ jobs:
           venv/bin/python -m coverage run -m unittest discover
           venv/bin/python -m coverage xml -i
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v7.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.UBIQUE_SONAR_TOKEN }}
@@ -36,3 +36,5 @@ jobs:
             -Dsonar.projectKey=UbiqueInnovation_map-tools
             -Dsonar.python.version=${{ env.python_version }}
             -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.tests=**/tests/
+            -Dsonar.exclusions=venv/**
