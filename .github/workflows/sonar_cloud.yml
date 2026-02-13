@@ -36,5 +36,4 @@ jobs:
             -Dsonar.projectKey=UbiqueInnovation_map-tools
             -Dsonar.python.version=${{ env.python_version }}
             -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.tests=**/tests/
             -Dsonar.exclusions=venv/**
