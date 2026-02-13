@@ -13,6 +13,7 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Install dependencies
+        shell: bash
         run: |
           apt -y update
           apt --reinstall install -y --no-install-recommends libc-bin
