@@ -18,8 +18,12 @@ class Wgs84TileInfo(TileInfo):
     y: int
 
     @property
+    def srid(self) -> int:
+        return 4326
+
+    @property
     def srs(self) -> str:
-        return "EPSG:4326"
+        return f"EPSG:{self.srid}"
 
     @property
     def zxy(self) -> tuple[int, int, int]:
