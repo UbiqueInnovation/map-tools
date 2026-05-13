@@ -3,7 +3,8 @@ from datetime import timedelta
 
 from osgeo import gdal
 
-from commons import CompositeTileOutput, BucketTileOutput, S3Client
+from commons import CompositeTileOutput, TilePathOutput, S3Client
+from commons.bucket_storage import BucketStorage
 from datasets import SwissAlti3d
 from elevation import ElevationTools
 from tiles import WebmercatorTileInfo
@@ -33,15 +34,19 @@ if __name__ == "__main__":
             ),
             output=CompositeTileOutput(
                 [
-                    BucketTileOutput(
-                        bucket=s3.meteo_swiss_test,
+                    TilePathOutput(
                         base_path=storage_path,
-                        cache_control=cache_control_test,
+                        storage=BucketStorage(
+                            bucket=s3.meteo_swiss_test,
+                            cache_control=cache_control_test,
+                        ),
                     ),
-                    BucketTileOutput(
-                        bucket=s3.meteo_swiss_prod,
+                    TilePathOutput(
                         base_path=storage_path,
-                        cache_control=cache_control_prod,
+                        storage=BucketStorage(
+                            bucket=s3.meteo_swiss_prod,
+                            cache_control=cache_control_prod,
+                        ),
                     ),
                 ]
             ),

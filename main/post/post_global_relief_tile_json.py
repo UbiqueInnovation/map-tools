@@ -3,7 +3,7 @@ import logging
 from datetime import timedelta
 from io import BytesIO
 
-from commons import R2Client, BucketOutput
+from commons import R2Client, BucketStorage
 
 if __name__ == "__main__":
     logging.root.setLevel(logging.INFO)
@@ -39,7 +39,8 @@ if __name__ == "__main__":
             file.write(json.dumps(tile_json).encode("UTF-8"))
             file.flush()
             file.seek(0)
-            BucketOutput(
+            BucketStorage(
                 bucket=bucket,
                 cache_control=cache_control_test,
+                content_type="application/json",
             ).save(file, f"v1/background/global-relief/{style}/tiles.json")

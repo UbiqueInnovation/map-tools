@@ -1,7 +1,8 @@
 import logging
 from datetime import timedelta
 
-from commons import CompositeTileOutput, BucketTileOutput, R2Client
+from commons import CompositeTileOutput, TilePathOutput, R2Client
+from commons.bucket_storage import BucketStorage
 from datasets import Dataset
 from elevation import ElevationTools
 from tiles import Wgs84TileInfo
@@ -19,8 +20,8 @@ if __name__ == "__main__":
     style = "light"
     max_zoom = 9
     source_width, source_height = 432_000, 210_000
-    tile_width = round(source_width / 2 ** max_zoom)
-    tile_height = round(source_height / 2 ** max_zoom)
+    tile_width = round(source_width / 2**max_zoom)
+    tile_height = round(source_height / 2**max_zoom)
 
     dataset_to_tiles = {
         f"Post/post-90-{style}-small.tif": list(
@@ -48,23 +49,29 @@ if __name__ == "__main__":
             resample_alg="bilinear",
             output=CompositeTileOutput(
                 [
-                    BucketTileOutput(
-                        bucket=r2.post_playground_dev,
+                    TilePathOutput(
                         base_path=storage_path,
-                        cache_control=cache_control_test,
                         file_ending="jpg",
+                        storage=BucketStorage(
+                            bucket=r2.post_playground_dev,
+                            cache_control=cache_control_test,
+                        ),
                     ),
-                    BucketTileOutput(
-                        bucket=r2.post_playground_int,
+                    TilePathOutput(
                         base_path=storage_path,
-                        cache_control=cache_control_prod,
                         file_ending="jpg",
+                        storage=BucketStorage(
+                            bucket=r2.post_playground_int,
+                            cache_control=cache_control_prod,
+                        ),
                     ),
-                    BucketTileOutput(
-                        bucket=r2.post_playground_prod,
+                    TilePathOutput(
                         base_path=storage_path,
-                        cache_control=cache_control_prod,
                         file_ending="jpg",
+                        storage=BucketStorage(
+                            bucket=r2.post_playground_prod,
+                            cache_control=cache_control_prod,
+                        ),
                     ),
                 ]
             ),

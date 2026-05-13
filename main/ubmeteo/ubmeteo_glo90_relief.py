@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 
-from commons import CompositeTileOutput, BucketTileOutput, S3Client
+from commons import CompositeTileOutput, TilePathOutput, S3Client, BucketStorage
 from datasets import Dataset
 from elevation import ElevationTools
 from tiles import Wgs84TileInfo
@@ -19,8 +19,8 @@ if __name__ == "__main__":
     style = "light"
     max_zoom = 9
     source_width, source_height = 432_000, 210_000
-    tile_width = round(source_width / 2 ** max_zoom)
-    tile_height = round(source_height / 2 ** max_zoom)
+    tile_width = round(source_width / 2**max_zoom)
+    tile_height = round(source_height / 2**max_zoom)
 
     logging.info(f"Creating tiles of size {tile_width}x{tile_height}")
     dataset_to_tiles = {
@@ -45,15 +45,19 @@ if __name__ == "__main__":
             height=tile_height,
             output=CompositeTileOutput(
                 [
-                    BucketTileOutput(
-                        bucket=s3.fluid_app_dev,
+                    TilePathOutput(
                         base_path=storage_path,
-                        cache_control=cache_control_test,
+                        storage=BucketStorage(
+                            bucket=s3.fluid_app_dev,
+                            cache_control=cache_control_test,
+                        ),
                     ),
-                    BucketTileOutput(
-                        bucket=s3.fluid_app_prod,
+                    TilePathOutput(
                         base_path=storage_path,
-                        cache_control=cache_control_prod,
+                        storage=BucketStorage(
+                            bucket=s3.fluid_app_prod,
+                            cache_control=cache_control_prod,
+                        ),
                     ),
                 ]
             ),

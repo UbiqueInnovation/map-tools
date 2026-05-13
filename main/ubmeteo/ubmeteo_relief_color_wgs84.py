@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 
-from commons import CompositeTileOutput, BucketTileOutput, S3Client
+from commons import CompositeTileOutput, TilePathOutput, S3Client, BucketStorage
 from datasets import Glo90
 from elevation import ElevationTools
 from tiles import Wgs84TileInfo
@@ -19,23 +19,33 @@ if __name__ == "__main__":
     for level in range(0, 8 + 1):
         style = "light"
         storage_path = f"v1/map/4326/relief-color/{style}"
-        dataset = Glo90().resolve("Glo90.tif") if level >= 6 else Glo90().resolve("global_1km.tif")
-        tiles = list(Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=level, max_zoom=level))
+        dataset = (
+            Glo90().resolve("Glo90.tif")
+            if level >= 6
+            else Glo90().resolve("global_1km.tif")
+        )
+        tiles = list(
+            Wgs84TileInfo(zoom=0, x=0, y=0).descendants(min_zoom=level, max_zoom=level)
+        )
         ElevationTools.generate_color_relief_tiles(
             tile_infos=tiles,
             dataset=dataset,
             color_filename=f"../../elevation/relief-colors/ubmeteo/{style}",
             output=CompositeTileOutput(
                 [
-                    BucketTileOutput(
-                        bucket=s3.fluid_app_dev,
+                    TilePathOutput(
                         base_path=storage_path,
-                        cache_control=cache_control_test,
+                        storage=BucketStorage(
+                            bucket=s3.fluid_app_dev,
+                            cache_control=cache_control_test,
+                        ),
                     ),
-                    BucketTileOutput(
-                        bucket=s3.fluid_app_prod,
+                    TilePathOutput(
                         base_path=storage_path,
-                        cache_control=cache_control_prod,
+                        storage=BucketStorage(
+                            bucket=s3.fluid_app_prod,
+                            cache_control=cache_control_prod,
+                        ),
                     ),
                 ]
             ),

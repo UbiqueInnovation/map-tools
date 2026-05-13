@@ -1,37 +1,38 @@
 import logging
 import os
+from typing import override
 
 from azure.storage.blob import ContainerClient, ContentSettings
 
-from tiles import TileInfo
-from . import TileOutput
+from . import Storage
 
 
-class BlobTileOutput(TileOutput):
+class BlobStorage(Storage):
+
     def __init__(
         self,
         container_client: ContainerClient,
-        base_path: str,
         cache_control: str = "max-age=86400",  # 1 day
-        file_extension: str = "png",
+        content_type: str = "image/png",
     ) -> None:
         self.container_client = container_client
-        self.base_path = base_path
+        self.content_type = content_type
         self.cache_control = cache_control
-        self.file_extension = file_extension
 
         logging.getLogger("azure.core").setLevel(logging.WARN)
 
-    def save(self, file_path: str, tile_info: TileInfo) -> None:
+    @override
+    def save(self, file_path: str, target_path: str) -> None:
         if os.stat(file_path).st_size == 0:
             logging.warning(f"File {file_path} is empty")
 
         with open(file_path, "rb") as file:
             self.container_client.upload_blob(
-                name=f"{self.base_path}/{tile_info.path}.{self.file_extension}",
+                name=target_path,
                 data=file,
                 overwrite=True,
                 content_settings=ContentSettings(
-                    cache_control=self.cache_control, content_type="image/png"
+                    cache_control=self.cache_control,
+                    content_type=self.content_type,
                 ),
             )

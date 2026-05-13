@@ -2,7 +2,7 @@ import logging
 from datetime import timedelta
 from multiprocessing.pool import ThreadPool
 
-from commons import CompositeTileOutput, BlobTileOutput, AzureClient
+from commons import CompositeTileOutput, BlobStorage, AzureClient, TilePathOutput
 from datasets.blue_marble import BlueMarble
 from elevation import ElevationTools
 from tiles import Wgs84TileInfo
@@ -36,17 +36,21 @@ if __name__ == "__main__":
         resample_alg="bilinear",
         output=CompositeTileOutput(
             [
-                BlobTileOutput(
-                    container_client=azure_client.restor_dev,
+                TilePathOutput(
                     base_path=storage_path,
-                    cache_control=cache_control_test,
-                    file_extension="jpg",
+                    file_ending="jpg",
+                    storage=BlobStorage(
+                        container_client=azure_client.restor_dev,
+                        cache_control=cache_control_test,
+                    ),
                 ),
-                BlobTileOutput(
-                    container_client=azure_client.restor_prod,
+                TilePathOutput(
                     base_path=storage_path,
-                    cache_control=cache_control_prod,
-                    file_extension="jpg",
+                    file_ending="jpg",
+                    storage=BlobStorage(
+                        container_client=azure_client.restor_prod,
+                        cache_control=cache_control_prod,
+                    ),
                 ),
             ]
         ),

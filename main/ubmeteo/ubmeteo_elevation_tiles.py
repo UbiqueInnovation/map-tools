@@ -8,7 +8,7 @@ import rasterio
 from alive_progress import alive_it
 from osgeo import gdal
 
-from commons import CompositeTileOutput, BucketTileOutput, S3Client
+from commons import CompositeTileOutput, TilePathOutput, S3Client, BucketStorage
 from datasets import Glo90
 from elevation import ElevationTools
 from tiles import Wgs84TileInfo
@@ -81,15 +81,19 @@ if __name__ == "__main__":
     storage_path = "v1/map/4326/elevation"
     output = CompositeTileOutput(
         [
-            BucketTileOutput(
-                bucket=s3.fluid_app_dev,
+            TilePathOutput(
                 base_path=storage_path,
-                cache_control=cache_control_test,
+                storage=BucketStorage(
+                    bucket=s3.fluid_app_dev,
+                    cache_control=cache_control_test,
+                ),
             ),
-            BucketTileOutput(
-                bucket=s3.fluid_app_prod,
+            TilePathOutput(
                 base_path=storage_path,
-                cache_control=cache_control_prod,
+                storage=BucketStorage(
+                    bucket=s3.fluid_app_prod,
+                    cache_control=cache_control_prod,
+                ),
             ),
         ]
     )

@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 
-from commons import CompositeTileOutput, S3Client, BucketTileOutput
+from commons import CompositeTileOutput, S3Client, TilePathOutput, BucketStorage
 from datasets import Dataset
 from elevation import ElevationTools
 from tiles import WebmercatorTileInfo
@@ -26,20 +26,26 @@ if __name__ == "__main__":
         src_nodata=150,
         output=CompositeTileOutput(
             [
-                BucketTileOutput(
-                    bucket=s3_client.viadi_dev,
+                TilePathOutput(
                     base_path=storage_path,
-                    cache_control=cache_control_dev,
+                    storage=BucketStorage(
+                        bucket=s3_client.viadi_dev,
+                        cache_control=cache_control_dev,
+                    ),
                 ),
-                BucketTileOutput(
-                    bucket=s3_client.viadi_int,
+                TilePathOutput(
                     base_path=storage_path,
-                    cache_control=cache_control_int,
+                    storage=BucketStorage(
+                        bucket=s3_client.viadi_int,
+                        cache_control=cache_control_int,
+                    ),
                 ),
-                BucketTileOutput(
-                    bucket=s3_client.viadi_prod,
+                TilePathOutput(
                     base_path=storage_path,
-                    cache_control=cache_control_prod,
+                    storage=BucketStorage(
+                        bucket=s3_client.viadi_prod,
+                        cache_control=cache_control_prod,
+                    ),
                 ),
             ]
         ),

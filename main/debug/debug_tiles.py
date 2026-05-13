@@ -4,7 +4,8 @@ from random import randint
 
 from PIL import Image, ImageDraw, ImageFont
 
-from commons import R2Client, BucketTileOutput, PMTilesOutput
+from commons import R2Client, PMTilesOutput
+from commons.bucket_storage import BucketStorage
 from elevation import ElevationTools
 from tiles import TileInfo, WebmercatorTileInfo
 
@@ -24,22 +25,6 @@ def create_image(tile: TileInfo) -> Image:
 
 
 def main() -> None:
-    r2 = R2Client()
-
-    max_age = int(timedelta(days=1).total_seconds())
-    cache_control = f"max-age={max_age}"
-    outputs = [
-        BucketTileOutput(
-            bucket=r2.maps_dev,
-            base_path="v1/map/4326/debug",
-            cache_control=cache_control,
-        ),
-        BucketTileOutput(
-            bucket=r2.maps_dev,
-            base_path="v1/map/3857/debug",
-            cache_control=cache_control,
-        ),
-    ]
 
     pmtiles_path = "debug.pmtiles"
     with open(pmtiles_path, "wb") as f:
@@ -55,8 +40,13 @@ def main() -> None:
 
         pmtiles_output.finalize()
 
-    for output in outputs:
-        output.save_to_path(pmtiles_path, target_path="debug.pmtiles")
+    r2 = R2Client()
+
+    max_age = int(timedelta(days=1).total_seconds())
+    cache_control = f"max-age={max_age}"
+    storage = BucketStorage(r2.maps_dev, cache_control=cache_control)
+    storage.save(pmtiles_path, target_path="v1/map/4326/debug.pmtiles")
+    storage.save(pmtiles_path, target_path="v1/map/3857/debug.pmtiles")
 
 
 # Example usage

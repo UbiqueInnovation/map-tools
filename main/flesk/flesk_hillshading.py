@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 
-from commons import CompositeTileOutput, BlobTileOutput, AzureClient
+from commons import CompositeTileOutput, BlobStorage, AzureClient, TilePathOutput
 from datasets import Dataset
 from elevation import ElevationTools
 from tiles import WebmercatorTileInfo
@@ -27,15 +27,19 @@ if __name__ == "__main__":
         src_nodata=150,
         output=CompositeTileOutput(
             [
-                BlobTileOutput(
-                    container_client=azure_client.flesk_dev,
+                TilePathOutput(
+                    storage=BlobStorage(
+                        container_client=azure_client.flesk_dev,
+                        cache_control=cache_control_test,
+                    ),
                     base_path=storage_path,
-                    cache_control=cache_control_test,
                 ),
-                BlobTileOutput(
-                    container_client=azure_client.flesk_prod,
+                TilePathOutput(
                     base_path=storage_path,
-                    cache_control=cache_control_prod,
+                    storage=BlobStorage(
+                        container_client=azure_client.flesk_prod,
+                        cache_control=cache_control_prod,
+                    ),
                 ),
             ]
         ),
