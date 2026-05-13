@@ -48,7 +48,7 @@ if __name__ == "__main__":
             [
                 TilePathOutput(
                     base_path=storage_path,
-                    file_ending="jpg",
+                    tile_format="jpg",
                     storage=BucketStorage(
                         bucket=r2.post_playground_dev,
                         cache_control=cache_control_test,
@@ -56,7 +56,7 @@ if __name__ == "__main__":
                 ),
                 TilePathOutput(
                     base_path=storage_path,
-                    file_ending="jpg",
+                    tile_format="jpg",
                     storage=BucketStorage(
                         bucket=r2.post_playground_int,
                         cache_control=cache_control_prod,
@@ -64,7 +64,7 @@ if __name__ == "__main__":
                 ),
                 TilePathOutput(
                     base_path=storage_path,
-                    file_ending="jpg",
+                    tile_format="jpg",
                     storage=BucketStorage(
                         bucket=r2.post_playground_prod,
                         cache_control=cache_control_prod,

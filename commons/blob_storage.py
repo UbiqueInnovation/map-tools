@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import override
+from typing import override, Optional
 
 from azure.storage.blob import ContainerClient, ContentSettings
 
@@ -13,16 +13,19 @@ class BlobStorage(Storage):
         self,
         container_client: ContainerClient,
         cache_control: str = "max-age=86400",  # 1 day
-        content_type: str = "image/png",
     ) -> None:
         self.container_client = container_client
-        self.content_type = content_type
         self.cache_control = cache_control
 
         logging.getLogger("azure.core").setLevel(logging.WARN)
 
     @override
-    def save(self, file_path: str, target_path: str) -> None:
+    def save(
+        self,
+        file_path: str,
+        target_path: str,
+        content_type: Optional[str] = None,
+    ) -> None:
         if os.stat(file_path).st_size == 0:
             logging.warning(f"File {file_path} is empty")
 
@@ -33,6 +36,6 @@ class BlobStorage(Storage):
                 overwrite=True,
                 content_settings=ContentSettings(
                     cache_control=self.cache_control,
-                    content_type=self.content_type,
+                    content_type=content_type,
                 ),
             )

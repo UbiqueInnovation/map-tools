@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import timedelta
-from io import BytesIO
+from tempfile import NamedTemporaryFile
 
 from commons import R2Client, BucketStorage
 
@@ -23,7 +23,7 @@ if __name__ == "__main__":
         ("int", r2.post_playground_int),
         ("prod", r2.post_playground_prod),
     ]:
-        with BytesIO() as file:
+        with NamedTemporaryFile() as file:
             tile_json = dict(
                 tilejson="3.0.0",
                 name="global-relief",
@@ -42,5 +42,8 @@ if __name__ == "__main__":
             BucketStorage(
                 bucket=bucket,
                 cache_control=cache_control_test,
+            ).save(
+                file.name,
+                f"v1/background/global-relief/{style}/tiles.json",
                 content_type="application/json",
-            ).save(file, f"v1/background/global-relief/{style}/tiles.json")
+            )

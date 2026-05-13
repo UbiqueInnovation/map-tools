@@ -13,24 +13,27 @@ class BucketStorage(Storage):
         self,
         bucket: Bucket,
         acl: str = "public-read",
-        content_type: str = "image/png",
         cache_control: str = "max-age=86400",  # 1 day
         content_encoding: Optional[str] = None,
     ) -> None:
         self.bucket = bucket
         self.acl = acl
         self.cache_control = cache_control
-        self.content_type = content_type
         self.content_encoding = content_encoding
 
-    def save(self, file_path: str, target_path: str) -> None:
+    def save(
+        self,
+        file_path: str,
+        target_path: str,
+        content_type: Optional[str] = None,
+    ) -> None:
         if os.stat(file_path).st_size == 0:
             logging.warning(f"File {file_path} is empty")
 
         extra_args = {
             "ACL": self.acl,
             "CacheControl": self.cache_control,
-            "ContentType": self.content_type,
+            "ContentType": content_type,
         }
         if self.content_encoding:
             extra_args["ContentEncoding"] = self.content_encoding

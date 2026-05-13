@@ -38,7 +38,7 @@ if __name__ == "__main__":
             [
                 TilePathOutput(
                     base_path=storage_path,
-                    file_ending="jpg",
+                    tile_format="jpg",
                     storage=BlobStorage(
                         container_client=azure_client.restor_dev,
                         cache_control=cache_control_test,
@@ -46,7 +46,7 @@ if __name__ == "__main__":
                 ),
                 TilePathOutput(
                     base_path=storage_path,
-                    file_ending="jpg",
+                    tile_format="jpg",
                     storage=BlobStorage(
                         container_client=azure_client.restor_prod,
                         cache_control=cache_control_prod,
