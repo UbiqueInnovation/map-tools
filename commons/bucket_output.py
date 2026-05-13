@@ -20,7 +20,7 @@ class BucketOutput(TileOutput):
         self.content_encoding = content_encoding
         self.content_type = content_type
 
-    def upload(self, content: IO, target_path: str) -> None:
+    def save(self, content: IO, target_path: str) -> None:
         extra_args = {
             "ACL": self.acl,
             "CacheControl": self.cache_control,

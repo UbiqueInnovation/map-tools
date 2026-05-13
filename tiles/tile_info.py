@@ -1,12 +1,18 @@
 from __future__ import annotations
 
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 
-class TileInfo:
+class TileInfo(ABC):
+
     @property
     def srs(self) -> str:
         return f"EPSG:{self.srid}"
+
+    @property
+    @abstractmethod
+    def zxy(self) -> tuple[int, int, int]:
+        pass
 
     @property
     @abstractmethod

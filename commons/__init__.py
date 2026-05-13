@@ -7,3 +7,4 @@ from .bucket_output import BucketOutput
 from .bucket_tile_output import BucketTileOutput
 from .blob_tile_output import BlobTileOutput
 from .composite_tile_output import CompositeTileOutput
+from .pmtiles_output import PMTilesOutput

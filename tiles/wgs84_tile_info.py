@@ -22,6 +22,10 @@ class Wgs84TileInfo(TileInfo):
         return "EPSG:4326"
 
     @property
+    def zxy(self) -> tuple[int, int, int]:
+        return self.zoom, self.x, self.y
+
+    @property
     def path(self) -> str:
         return f"{self.zoom}/{self.x}/{self.y}"
 

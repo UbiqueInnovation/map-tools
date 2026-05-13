@@ -18,13 +18,16 @@ coordinate_system_height = coordinate_system_width
 @dataclass(frozen=True, kw_only=True, unsafe_hash=True, order=True)
 class WebmercatorTileInfo(TileInfo):
     zoom: int
-
     x: int
     y: int
 
     @property
     def srid(self) -> int:
         return 3857
+
+    @property
+    def zxy(self) -> tuple[int, int, int]:
+        return self.zoom, self.x, self.y
 
     @property
     def path(self) -> str:

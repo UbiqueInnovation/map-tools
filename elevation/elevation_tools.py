@@ -161,7 +161,7 @@ class ElevationTools:
                 ElevationTools.image_to_rgb(target.tile_path(tile_info))
 
             if output:
-                output.upload(target.tile_path(tile_info), tile_info)
+                output.save(target.tile_path(tile_info), tile_info)
 
         return ElevationTools.apply_for_all_tile_infos(
             tile_infos, generate_hillshade_tile
@@ -191,7 +191,7 @@ class ElevationTools:
             )
 
             if output:
-                output.upload(target_path, tile_info)
+                output.save(target_path, tile_info)
 
             os.remove(target_path)
             os.remove(warped_tile_path)
@@ -237,7 +237,7 @@ class ElevationTools:
                 Image.open(target_path).convert("RGB").save(target_path)
 
             if output:
-                output.upload(target_path, tile_info)
+                output.save(target_path, tile_info)
 
             if remove_after_upload:
                 os.remove(target_path)

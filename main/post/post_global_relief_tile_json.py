@@ -42,4 +42,4 @@ if __name__ == "__main__":
             BucketOutput(
                 bucket=bucket,
                 cache_control=cache_control_test,
-            ).upload(file, f"v1/background/global-relief/{style}/tiles.json")
+            ).save(file, f"v1/background/global-relief/{style}/tiles.json")

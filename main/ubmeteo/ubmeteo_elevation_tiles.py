@@ -14,9 +14,7 @@ from elevation import ElevationTools
 from tiles import Wgs84TileInfo
 
 
-def create_tile(
-    tile: Wgs84TileInfo, width: int = 0, height: int = 0
-):
+def create_tile(tile: Wgs84TileInfo, width: int = 0, height: int = 0):
     dataset = Glo90().resolve("glo90.tif")
     warped_path = dataset.resolve("warped/4326/" + tile.path + ".tif").path
     if not os.path.exists(warped_path):
@@ -61,7 +59,7 @@ def create_tile(
             dst.write_band(2, g.astype(rasterio.uint8))
             dst.write_band(3, b.astype(rasterio.uint8))
 
-        output.upload(png_path, tile)
+        output.save(png_path, tile)
 
     os.remove(png_path)
     os.remove(warped_path)

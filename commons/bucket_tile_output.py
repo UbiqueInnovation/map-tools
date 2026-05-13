@@ -25,7 +25,13 @@ class BucketTileOutput(TileOutput):
         self.cache_control = cache_control
         self.content_encoding = content_encoding
 
-    def upload(self, file_path: str, tile_info: TileInfo) -> None:
+    def save(self, file_path: str, tile_info: TileInfo) -> None:
+        self.save_to_path(
+            file_path=file_path,
+            target_path=f"{tile_info.path}.{self.file_ending}",
+        )
+
+    def save_to_path(self, file_path: str, target_path: str) -> None:
         if os.stat(file_path).st_size == 0:
             logging.warning(f"File {file_path} is empty")
 
@@ -38,6 +44,6 @@ class BucketTileOutput(TileOutput):
 
         self.bucket.upload_file(
             file_path,
-            f"{self.base_path}/{tile_info.path}.{self.file_ending}",
+            f"{self.base_path}/{target_path}",
             ExtraArgs=extra_args,
         )

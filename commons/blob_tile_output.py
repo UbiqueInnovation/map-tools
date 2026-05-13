@@ -22,7 +22,7 @@ class BlobTileOutput(TileOutput):
 
         logging.getLogger("azure.core").setLevel(logging.WARN)
 
-    def upload(self, file_path: str, tile_info: TileInfo) -> None:
+    def save(self, file_path: str, tile_info: TileInfo) -> None:
         if os.stat(file_path).st_size == 0:
             logging.warning(f"File {file_path} is empty")
 
